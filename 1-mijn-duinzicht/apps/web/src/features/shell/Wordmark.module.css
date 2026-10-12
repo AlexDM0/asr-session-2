@@ -1,0 +1,26 @@
+.wordmark {
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  line-height: var(--line-height-wordmark);
+}
+
+.name {
+  font-family: var(--font-head);
+  font-size: var(--font-size-wordmark);
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--letter-spacing-wordmark);
+}
+
+.dot {
+  color: var(--amber);
+}
+
+.tagline {
+  margin-top: var(--space-2);
+  color: var(--muted);
+  font-size: var(--font-size-wordmark-tagline);
+  font-weight: var(--weight-medium);
+  letter-spacing: var(--letter-spacing-tagline);
+  text-transform: uppercase;
+}

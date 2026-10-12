@@ -1,0 +1,28 @@
+.textButton {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-4);
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--ink);
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: var(--weight-semibold);
+  line-height: inherit;
+  cursor: pointer;
+}
+
+.textButton:hover:not(:disabled) {
+  color: var(--green);
+}
+
+.textButton:disabled {
+  cursor: not-allowed;
+}
+
+.label {
+  text-decoration: underline;
+  text-underline-offset: var(--space-4);
+}

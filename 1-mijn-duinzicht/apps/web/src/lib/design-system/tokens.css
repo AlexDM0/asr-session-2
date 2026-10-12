@@ -1,0 +1,137 @@
+:root {
+  /* Colours */
+  --ink: #141414;
+  --muted: #5E5B55;
+  --body-2: #3A3833;
+  --line: #E6E3DD;
+  --line-soft: #EEEBE5;
+  --surface: #FFFFFF;
+  --surface-grey: #F4F3F1;
+  --cream: #FDF6E1;
+  --amber: #EBA72A;
+  --amber-dark: #C98A14;
+  --amber-icon: #B5790C;
+  --sage: #E8F0E2;
+  --green: #2F7A4F;
+  --red: #C2412D;
+  --toggle-off: #C9C5BD;
+  --step-todo: #A7A39B;
+  --field-border: #8C887F;
+  --ok-bg: #DCEBDD;
+  --ok-fg: #1F5A36;
+  --warn-bg: #FCEBC4;
+  --warn-fg: #7A4E00;
+  --err-bg: #F8DDD7;
+  --err-fg: #8A2A18;
+  --info-bg: #DCE7F3;
+  --info-fg: #1D4A7A;
+  --neutral-bg: #EEEBE5;
+  --neutral-fg: #3A3833;
+
+  /* Typography */
+  --font-head: 'Zilla Slab', serif;
+  --font-body: 'Figtree', system-ui, sans-serif;
+  --font-icon: 'Material Symbols Outlined';
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+  --font-size-display: 44px;
+  --font-size-h1: 40px;
+  --font-size-h2: 34px;
+  --font-size-h2-detail: 30px;
+  --font-size-title-large: 28px;
+  --font-size-title: 24px;
+  --font-size-title-small: 22px;
+  --font-size-lead: 18px;
+  --font-size-large: 17px;
+  --font-size-step-heading: 20px;
+  --font-size-body: 16px;
+  --font-size-medium: 15px;
+  --font-size-small: 14px;
+  --font-size-caption: 13px;
+  --font-size-wordmark: 30px;
+  --font-size-wordmark-tagline: 12px;
+  --line-height-display: 1.1;
+  --line-height-lead: 1.5;
+  --line-height-compact: 1.2;
+  --line-height-wordmark: 1;
+  --letter-spacing-wordmark: -0.5px;
+  --letter-spacing-tagline: 1.5px;
+
+  /* Icon sizes */
+  --icon-size-small: 18px;
+  --icon-size-medium: 20px;
+  --icon-size-default: 24px;
+  --icon-size-large: 28px;
+  --icon-size-extra-large: 32px;
+
+  /* Spacing: the scale, then the off-scale steps the designs use */
+  --space-4: 4px;
+  --space-8: 8px;
+  --space-12: 12px;
+  --space-14: 14px;
+  --space-16: 16px;
+  --space-20: 20px;
+  --space-24: 24px;
+  --space-28: 28px;
+  --space-32: 32px;
+  --space-40: 40px;
+  --space-48: 48px;
+  --space-64: 64px;
+  --space-2: 2px;
+  --space-6: 6px;
+  --space-10: 10px;
+  --space-11: 11px;
+  --space-18: 18px;
+  --space-22: 22px;
+  --space-26: 26px;
+
+  /* Borders, radius, shadows */
+  --border-hairline: 1px;
+  --border-field: 1.5px;
+  --border-emphasis: 2px;
+  --active-bar: 3px;
+  --radius: 0;
+  --radius-round: 50%;
+  --radius-toggle: 12px;
+  --shadow-sm: 0 1px 6px rgba(20,20,20,.06);
+  --shadow-md: 0 2px 14px rgba(20,20,20,.08);
+
+  /* Layout */
+  --max: 1240px;
+  --max-narrow: 960px;
+  --max-readable: 720px;
+  --page-min-height: 80vh;
+  --gutter: 24px;
+  --utility-bar-height: 34px;
+  --main-bar-height: 76px;
+  --compact-header-height: 64px;
+  --breakpoint: 900px;
+  --avatar-size: 40px;
+  --avatar-name-skeleton-width: 110px;
+  --avatar-number-skeleton-width: 120px;
+  --icon-circle-small: 48px;
+  --icon-circle-medium: 56px;
+  --icon-circle-large: 64px;
+  --touch-target: 48px;
+  --toggle-width: 44px;
+  --toggle-height: 24px;
+  --toggle-knob: 18px;
+  --toggle-inset: 3px;
+  --progress-bar-height: 6px;
+  --focus-outline-width: 2px;
+  --focus-outline-offset: 2px;
+  --lead-max-width: 520px;
+  --policy-grid-min-column: 270px;
+  --overview-card-grid-min-column: 320px;
+  --selected-row-bar: 4px;
+  --policy-list-min-width: 260px;
+  --policy-list-max-width: 360px;
+  --fact-min-width: 180px;
+  --tile-min-width: 260px;
+  --callout-text-min-width: 200px;
+  --key-column-min-width: 140px;
+  --key-column-max-width: 240px;
+  --postcode-field-width: 160px;
+}

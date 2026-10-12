@@ -1,0 +1,25 @@
+.skipLink {
+  position: fixed;
+  z-index: 2;
+  top: var(--space-8);
+  left: var(--gutter);
+  padding: var(--space-14) var(--space-24);
+  background: var(--ink);
+  color: var(--surface);
+  font-size: var(--font-size-large);
+  font-weight: var(--weight-semibold);
+}
+
+.skipLink:hover {
+  color: var(--surface);
+}
+
+/* Visually hidden but still in the tab order, as a hairline box like VisuallyHidden. */
+.skipLink:not(:focus) {
+  overflow: hidden;
+  width: var(--border-hairline);
+  height: var(--border-hairline);
+  padding: 0;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}

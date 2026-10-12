@@ -1,0 +1,9 @@
+.mainContent {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.mainContent > :last-child {
+  flex-grow: 1;
+}

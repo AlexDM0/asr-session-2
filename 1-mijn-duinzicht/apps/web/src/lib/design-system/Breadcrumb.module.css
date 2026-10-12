@@ -1,0 +1,22 @@
+.breadcrumb {
+  color: var(--muted);
+  font-size: var(--font-size-small);
+}
+
+.list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.item {
+  display: inline;
+}
+
+.link {
+  color: inherit;
+}
+
+.link:hover {
+  color: var(--green);
+}

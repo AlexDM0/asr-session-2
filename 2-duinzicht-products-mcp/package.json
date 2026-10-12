@@ -1,0 +1,22 @@
+{
+  "name": "duinzicht-products-mcp",
+  "version": "1.0.0",
+  "description": "Read-only MCP server with the product catalogue and premium rules of Duinzicht Verzekeringen",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "bun --watch src/main.ts",
+    "start": "bun src/main.ts",
+    "test": "bun test",
+    "typecheck": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/server": "2.1.0",
+    "zod": "4.6.5"
+  },
+  "devDependencies": {
+    "@modelcontextprotocol/client": "2.1.0",
+    "@types/bun": "1.4.2",
+    "typescript": "7.0.2"
+  }
+}

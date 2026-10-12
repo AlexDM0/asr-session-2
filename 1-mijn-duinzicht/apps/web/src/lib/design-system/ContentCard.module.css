@@ -1,0 +1,35 @@
+.contentCard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-12);
+  padding: var(--space-24);
+  background: var(--surface);
+}
+
+.contentCard[data-padding='space28'] {
+  padding: var(--space-28);
+}
+
+.contentCard[data-padding='space32'] {
+  padding: var(--space-32);
+}
+
+.contentCard[data-padding='space40'] {
+  padding: var(--space-40);
+}
+
+.contentCard[data-elevation='raised'] {
+  box-shadow: var(--shadow-md);
+}
+
+.contentCard[data-readable-width='true'] {
+  max-width: var(--max-readable);
+}
+
+:root[data-layout='compact'] .contentCard[data-readable-width='true'] {
+  max-width: none;
+}
+
+.title {
+  font-size: var(--font-size-title);
+}

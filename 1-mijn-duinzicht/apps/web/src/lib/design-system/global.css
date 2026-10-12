@@ -1,0 +1,56 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  border-radius: var(--radius);
+  animation: none;
+  transition: none;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+/* The shell stretches the last page section so its background reaches the bottom of a short page. */
+#root {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--surface);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: var(--font-size-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: var(--ink);
+  text-decoration: none;
+}
+
+a:hover {
+  color: var(--green);
+}
+
+h1,
+h2,
+h3 {
+  margin: 0;
+  font-family: var(--font-head);
+  font-weight: var(--weight-medium);
+}
+
+:focus-visible {
+  outline: var(--focus-outline-width) solid var(--green);
+  outline-offset: var(--focus-outline-offset);
+}
+
+/* The content region is focused by the shell after navigation; it is not a control, so it shows no outline. */
+main:focus {
+  outline: none;
+}

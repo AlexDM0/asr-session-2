@@ -1,0 +1,12 @@
+/* A hairline box rather than zero size, because some screen readers skip elements without dimensions. */
+.visuallyHidden {
+  position: absolute;
+  overflow: hidden;
+  width: var(--border-hairline);
+  height: var(--border-hairline);
+  margin: 0;
+  padding: 0;
+  border: 0;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}

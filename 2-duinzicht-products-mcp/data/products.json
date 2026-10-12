@@ -1,0 +1,163 @@
+{
+  "formatVersion": 1,
+  "insurer": "Duinzicht Verzekeringen",
+  "products": [
+    {
+      "code": "woonhuis",
+      "name": "Woonhuisverzekering",
+      "category": "property",
+      "summary": "Covers the building of an owner-occupied home.",
+      "description": "Insures the house itself: walls, roof, floors, fixed installations and everything that cannot be taken along when moving. The sum insured is the rebuilding value of the house.",
+      "cover": [
+        "Fire, storm, lightning and burglary damage to the building",
+        "Water damage from leaking pipes and installations",
+        "Glass breakage (optional, included by default)"
+      ],
+      "exclusions": [
+        "Gradual damage such as rot, damp and wear",
+        "Damage while the house is unoccupied for more than 3 months"
+      ],
+      "quotableOnline": false,
+      "notQuotableReason": "The premium depends on an inspection-based rebuilding value and is set by an adviser. Customers who hold this product see their premium on their policy."
+    },
+    {
+      "code": "inboedel",
+      "name": "Inboedelverzekering",
+      "category": "property",
+      "summary": "Covers the contents of a home.",
+      "description": "Insures everything in the home that a customer would take along when moving: furniture, clothing, electronics and household goods. Comes with an underinsurance guarantee.",
+      "cover": [
+        "Fire and burglary",
+        "Water damage",
+        "Cover outside the home for items taken along, up to a limit"
+      ],
+      "exclusions": [
+        "Cash above 1,000 euros",
+        "Items left visibly in an unlocked car"
+      ],
+      "quotableOnline": false,
+      "notQuotableReason": "The premium depends on a contents valuation done by an adviser. Customers who hold this product see their premium on their policy."
+    },
+    {
+      "code": "auto",
+      "name": "Autoverzekering",
+      "category": "vehicle",
+      "summary": "Covers a private car, from third-party liability up to all risks.",
+      "description": "Insures a private passenger car. Third-party liability is mandatory in the Netherlands; limited and full comprehensive cover are optional. Includes European roadside assistance.",
+      "cover": [
+        "Third-party liability (WA)",
+        "Full comprehensive cover (allrisk)",
+        "Roadside assistance in Europe"
+      ],
+      "exclusions": [
+        "Driving under the influence of alcohol or drugs",
+        "Use of the car for paid passenger transport"
+      ],
+      "quotableOnline": false,
+      "notQuotableReason": "The premium depends on the car, the driver's claim-free years and the registration data, which require a check by an adviser. Customers who hold this product see their premium on their policy."
+    },
+    {
+      "code": "aansprakelijkheid",
+      "name": "Aansprakelijkheidsverzekering",
+      "category": "liability",
+      "summary": "Covers damage the customer or their household causes to other people or their property.",
+      "description": "Personal liability insurance for private life. Covers damage to other people and their belongings caused by the policyholder, the people in their household, their children and their pets.",
+      "cover": [
+        "Damage to other people and their property",
+        "Damage caused by children",
+        "Damage caused by pets"
+      ],
+      "exclusions": [
+        "Damage caused on purpose",
+        "Damage caused while working or running a business"
+      ],
+      "quotableOnline": false,
+      "notQuotableReason": "This product is sold only together with a home insurance and is priced by an adviser. Customers who hold this product see their premium on their policy."
+    },
+    {
+      "code": "reis",
+      "name": "Doorlopende reisverzekering",
+      "category": "travel",
+      "summary": "Year-round travel insurance for every holiday and short trip, without taking out a new policy per trip.",
+      "description": "Continuous travel insurance that covers all private trips during the policy term, as long as a single trip does not last longer than the chosen maximum trip duration. Covers luggage, emergency assistance and extra costs for an early return. Medical costs, winter sports and cancellation can be added as modules.",
+      "cover": [
+        "Luggage loss, theft and damage, up to 3,000 euros per person per trip",
+        "24/7 emergency assistance through the Duinzicht alarm centre",
+        "Extra travel and accommodation costs for an early return home",
+        "Trips within the Netherlands that include at least one overnight stay booked in advance"
+      ],
+      "exclusions": [
+        "Trips that last longer than the chosen maximum trip duration",
+        "Trips to areas with a negative travel advice (colour code red) from the Dutch Ministry of Foreign Affairs",
+        "Dangerous sports such as mountaineering above 6,000 metres, unless listed in the winter sports module",
+        "Business trips"
+      ],
+      "quotableOnline": true,
+      "conditions": {
+        "coverageStart": "Cover starts on the day after Duinzicht accepts the application.",
+        "waitingPeriod": "No waiting period for the base cover. The cancellation module only covers cancellations for reasons that were not known when the trip was booked.",
+        "acceptance": [
+          "The policyholder lives in the Netherlands and is registered with a Dutch health insurer",
+          "Everyone insured is part of the policyholder's household"
+        ]
+      }
+    },
+    {
+      "code": "rechtsbijstand",
+      "name": "Rechtsbijstandverzekering",
+      "category": "legal",
+      "summary": "Legal aid by Duinzicht's own lawyers and legal specialists when the customer gets into a legal conflict.",
+      "description": "Legal expenses insurance that gives the household access to legal advice and assistance. The base cover handles conflicts as a consumer and about the home. Employment, traffic, family law and inheritance, and tax and assets can be added as modules.",
+      "cover": [
+        "Conflicts about purchases and services as a consumer",
+        "Conflicts about the home with landlords, neighbours, contractors and the municipality",
+        "Legal advice by phone, also for questions without a conflict",
+        "External lawyer costs up to 50,000 euros per case when the case has to go to court"
+      ],
+      "exclusions": [
+        "Conflicts that started, or could be foreseen, before the policy started",
+        "Divorce and ending a registered partnership",
+        "Conflicts with a financial interest below 250 euros",
+        "Conflicts about a business or self-employed work"
+      ],
+      "quotableOnline": true,
+      "conditions": {
+        "coverageStart": "Cover starts on the first day of the month after Duinzicht accepts the application.",
+        "waitingPeriod": "Waiting period of 3 months: conflicts that start within 3 months after the start date are not covered. The family law and inheritance module has a waiting period of 12 months.",
+        "acceptance": [
+          "The policyholder lives in the Netherlands",
+          "No more than one legal case in the last 5 years; customers with two or more cases need an adviser"
+        ]
+      }
+    },
+    {
+      "code": "fiets",
+      "name": "Fietsverzekering",
+      "category": "bike",
+      "summary": "Theft cover for a bike, e-bike, cargo bike or speed pedelec, with optional accidental damage cover and roadside assistance.",
+      "description": "Insures one bike against theft, including the battery of an electric bike. The bike is insured for its purchase value in the first year and with a fixed depreciation after that. Accidental damage and roadside assistance can be added as modules.",
+      "cover": [
+        "Theft of the bike, including the battery and fixed accessories",
+        "Replacement by a bike of the same type and value in the first year, after that the depreciated value",
+        "Damage to the bike caused by an attempted theft"
+      ],
+      "exclusions": [
+        "Theft when the bike was not locked with an approved second lock (the frame lock alone is not enough)",
+        "Theft of loose accessories such as bags, lights and child seats",
+        "Damage from wear, rust and lack of maintenance",
+        "Use for paid deliveries"
+      ],
+      "quotableOnline": true,
+      "conditions": {
+        "coverageStart": "Cover starts on the day after Duinzicht accepts the application.",
+        "waitingPeriod": "No waiting period.",
+        "acceptance": [
+          "The bike was bought new, by the policyholder, with a proof of purchase",
+          "The bike is at most 3 years old on the day of the quote",
+          "The purchase value is at most 8,000 euros",
+          "Speed pedelecs need a valid number plate and their own motor liability insurance"
+        ]
+      }
+    }
+  ]
+}

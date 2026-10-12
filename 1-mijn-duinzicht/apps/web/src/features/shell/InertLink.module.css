@@ -1,0 +1,6 @@
+.inertLink {
+  display: inline-flex;
+  gap: var(--space-6);
+  align-items: center;
+  cursor: default;
+}

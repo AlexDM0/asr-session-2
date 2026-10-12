@@ -1,0 +1,25 @@
+.twoColumnGrid {
+  display: grid;
+  grid-template-columns: var(--two-column-template);
+  align-items: stretch;
+}
+
+:root[data-layout='compact'] .twoColumnGrid {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.twoColumnGrid[data-gap='space16'] {
+  gap: var(--space-16);
+}
+
+.twoColumnGrid[data-gap='space24'] {
+  gap: var(--space-24);
+}
+
+.twoColumnGrid[data-gap='space40'] {
+  gap: var(--space-40);
+}
+
+.twoColumnGrid[data-align-items='start'] {
+  align-items: start;
+}

@@ -1,0 +1,22 @@
+.notFoundPage {
+  min-height: var(--page-min-height);
+  padding: var(--space-40) 0 var(--space-64);
+  background: var(--surface-grey);
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-20);
+}
+
+.heading {
+  font-size: var(--font-size-h1);
+}
+
+.lead {
+  margin: 0;
+  color: var(--body-2);
+  font-size: var(--font-size-lead);
+  line-height: var(--line-height-lead);
+}

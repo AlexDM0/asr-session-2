@@ -1,0 +1,39 @@
+.avatarBlock {
+  display: flex;
+  gap: var(--space-12);
+  align-items: center;
+}
+
+.initials {
+  display: grid;
+  flex: none;
+  width: var(--avatar-size);
+  height: var(--avatar-size);
+  border-radius: var(--radius-round);
+  background: var(--sage);
+  font-size: var(--font-size-medium);
+  font-weight: var(--weight-semibold);
+  place-items: center;
+}
+
+.identity {
+  display: flex;
+  flex-direction: column;
+  line-height: var(--line-height-compact);
+}
+
+.fullName {
+  font-size: var(--font-size-medium);
+  font-weight: var(--weight-semibold);
+}
+
+.customerNumber {
+  color: var(--muted);
+  font-size: var(--font-size-caption);
+}
+
+.skeletonLines {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}

@@ -1,0 +1,54 @@
+.toggle {
+  display: inline-flex;
+  align-items: center;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.toggle[data-has-row='true'] {
+  display: flex;
+  gap: var(--space-16);
+  width: 100%;
+}
+
+.toggle:disabled {
+  cursor: not-allowed;
+}
+
+.rowContent {
+  flex: 1;
+  min-width: 0;
+}
+
+.track {
+  position: relative;
+  flex: none;
+  width: var(--toggle-width);
+  height: var(--toggle-height);
+  border-radius: var(--radius-toggle);
+  background: var(--toggle-off);
+}
+
+.toggle[aria-checked='true'] .track {
+  background: var(--green);
+}
+
+.knob {
+  position: absolute;
+  top: var(--toggle-inset);
+  left: var(--toggle-inset);
+  width: var(--toggle-knob);
+  height: var(--toggle-knob);
+  border-radius: var(--radius-round);
+  background: var(--surface);
+}
+
+.toggle[aria-checked='true'] .knob {
+  left: calc(var(--toggle-width) - var(--toggle-knob) - var(--toggle-inset));
+}

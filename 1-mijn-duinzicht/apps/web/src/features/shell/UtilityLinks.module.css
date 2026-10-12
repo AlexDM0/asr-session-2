@@ -1,0 +1,19 @@
+.utilityLinks {
+  display: flex;
+  gap: var(--space-24);
+  align-items: center;
+  justify-content: flex-end;
+  font-size: var(--font-size-small);
+}
+
+.utilityLinks[data-layout='panel'] {
+  flex-direction: column;
+  gap: 0;
+  align-items: stretch;
+  padding: var(--space-8) var(--gutter);
+  background: var(--surface-grey);
+}
+
+.utilityLinks[data-layout='panel'] > a {
+  padding: var(--space-10) 0;
+}

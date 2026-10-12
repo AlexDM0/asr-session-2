@@ -1,0 +1,17 @@
+{
+  "name": "@mijn-duinzicht/api",
+  "private": true,
+  "scripts": {
+    "dev": "bun --watch src/main.ts",
+    "reset": "bun src/reset.ts",
+    "test": "bun test",
+    "typecheck": "tsc -p tsconfig.json && tsc -p tsconfig.spec.json"
+  },
+  "dependencies": {
+    "@mijn-duinzicht/api-contract": "workspace:*",
+    "@mijn-duinzicht/claim-report-rules": "workspace:*",
+    "@mijn-duinzicht/dutch-format": "workspace:*",
+    "@mijn-duinzicht/profile-detail-rules": "workspace:*",
+    "@mijn-duinzicht/record-reader": "workspace:*"
+  }
+}

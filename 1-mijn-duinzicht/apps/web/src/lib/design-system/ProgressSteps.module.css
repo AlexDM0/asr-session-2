@@ -1,0 +1,15 @@
+.progressSteps {
+  display: flex;
+  gap: var(--space-4);
+}
+
+.bar {
+  flex: 1;
+  height: var(--progress-bar-height);
+  background: var(--line);
+}
+
+.bar[data-state='done'],
+.progressSteps[data-current-is-highlighted='true'] .bar[data-state='current'] {
+  background: var(--green);
+}

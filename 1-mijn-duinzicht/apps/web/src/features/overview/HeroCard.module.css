@@ -1,0 +1,43 @@
+.heroCard {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--space-20);
+  min-width: 0;
+}
+
+.heading {
+  margin: 0;
+  font-size: var(--font-size-display);
+  line-height: var(--line-height-display);
+  text-wrap: pretty;
+  overflow-wrap: anywhere;
+}
+
+.lead {
+  max-width: var(--lead-max-width);
+  margin: 0;
+  color: var(--body-2);
+  font-size: var(--font-size-lead);
+  line-height: var(--line-height-lead);
+}
+
+.skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-20);
+}
+
+.leadSkeleton {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+  max-width: var(--lead-max-width);
+}
+
+.buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-12);
+}

@@ -1,0 +1,11 @@
+/* The designs size the column without its gutters (content-box), so the gutters add to the maximum width. */
+.contentColumn {
+  box-sizing: content-box;
+  max-width: var(--max);
+  margin: 0 auto;
+  padding: 0 var(--gutter);
+}
+
+.contentColumn[data-width='narrow'] {
+  max-width: var(--max-narrow);
+}

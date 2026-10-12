@@ -1,0 +1,41 @@
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.label {
+  font-size: var(--font-size-body);
+  font-weight: var(--weight-semibold);
+}
+
+.hint {
+  color: var(--muted);
+  font-size: var(--font-size-small);
+}
+
+.control {
+  width: 100%;
+  margin: 0;
+  padding: var(--space-12) var(--space-14);
+  border: var(--border-field) solid var(--field-border);
+  background: var(--surface);
+  color: var(--ink);
+  font-family: inherit;
+  font-size: var(--font-size-body);
+  font-weight: var(--weight-regular);
+}
+
+.field[data-has-error='true'] .control {
+  border-color: var(--red);
+}
+
+.control:disabled {
+  cursor: not-allowed;
+}
+
+.errorMessage {
+  color: var(--err-fg);
+  font-size: var(--font-size-small);
+  font-weight: var(--weight-regular);
+}

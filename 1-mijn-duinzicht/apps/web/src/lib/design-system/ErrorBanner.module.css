@@ -1,0 +1,46 @@
+.errorBanner {
+  display: flex;
+  gap: var(--space-12);
+  align-items: center;
+  padding: var(--space-16) var(--space-20);
+  background: var(--err-bg);
+  color: var(--err-fg);
+}
+
+.message {
+  flex: 1;
+  margin: 0;
+  font-size: var(--font-size-body);
+}
+
+.retry {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--err-fg);
+  font-family: inherit;
+  font-size: var(--font-size-body);
+  font-weight: var(--weight-semibold);
+  text-decoration: underline;
+  text-underline-offset: var(--space-4);
+  cursor: pointer;
+}
+
+.retry:disabled {
+  cursor: not-allowed;
+}
+
+.errorBanner[data-variant='compact'] {
+  gap: var(--space-8);
+  padding: var(--space-4) var(--space-10);
+}
+
+.errorBanner[data-variant='compact'] .message {
+  flex: none;
+  font-size: var(--font-size-caption);
+  font-weight: var(--weight-semibold);
+}
+
+.errorBanner[data-variant='compact'] .retry {
+  font-size: var(--font-size-caption);
+}

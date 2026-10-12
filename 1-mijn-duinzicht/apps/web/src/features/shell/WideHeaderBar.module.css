@@ -1,0 +1,37 @@
+.wideHeaderBar {
+  border-bottom: var(--border-hairline) solid var(--line);
+  background: var(--surface);
+}
+
+.utilityBar {
+  background: var(--surface-grey);
+}
+
+/* The design sizes its rows without their gutters (content-box), so the gutters add to the maximum width. */
+.utilityRow,
+.mainRow {
+  box-sizing: content-box;
+  max-width: var(--max);
+  margin: 0 auto;
+  padding: 0 var(--gutter);
+}
+
+.utilityRow {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  height: var(--utility-bar-height);
+}
+
+.mainRow {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  height: var(--main-bar-height);
+}
+
+/* Spacers instead of a gap, so the 40px gaps can shrink to 24px just above the breakpoint before anything wraps. */
+.spacer {
+  flex: 0 1 var(--space-40);
+  min-width: var(--space-24);
+}

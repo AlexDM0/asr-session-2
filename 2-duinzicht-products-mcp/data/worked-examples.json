@@ -1,0 +1,140 @@
+{
+  "formatVersion": 1,
+  "customer": {
+    "name": "Sanne de Vries",
+    "birthDate": "1988-06-14",
+    "address": {
+      "streetAndHouseNumber": "Lindelaan 12",
+      "postcode": "3521 AB",
+      "city": "Utrecht"
+    },
+    "household": "family",
+    "housingSituation": "owner",
+    "activePolicies": ["woonhuis", "inboedel", "auto", "aansprakelijkheid"],
+    "notes": "Sanne owns her home (she holds a Woonhuisverzekering) and lives with her family (her Aansprakelijkheidsverzekering is for a household of two adults with children). She holds 4 active Duinzicht policies, so she qualifies for the package discount."
+  },
+  "examples": [
+    {
+      "productCode": "reis",
+      "title": "Doorlopende reisverzekering for Sanne: Europe, family, trips up to 60 days, winter sports module, deductible 50 euros",
+      "forWorkedExampleCustomer": true,
+      "whatItChecks": "A quote for Sanne with both discounts: the deductible discount of 5% and the package discount of 10% compound.",
+      "factorChoices": [
+        { "factorCode": "coverage-area", "input": "europe", "optionCode": "europe", "multiplier": 1 },
+        { "factorCode": "household", "input": "family", "optionCode": "family", "multiplier": 1.95 },
+        { "factorCode": "maximum-trip-duration", "input": "60-days", "optionCode": "60-days", "multiplier": 1 }
+      ],
+      "moduleCodes": ["winter-sports"],
+      "deductibleInEuros": 50,
+      "activeDuinzichtPolicies": 4,
+      "steps": [
+        { "order": 1, "code": "base-and-factors", "calculation": "3.40 x 1.00 (europe) x 1.95 (family) x 1.00 (60-days)", "amountInEuros": 6.63 },
+        { "order": 2, "code": "modules", "calculation": "6.63 + 0.95 (winter-sports)", "amountInEuros": 7.58 },
+        { "order": 3, "code": "deductible-discount", "calculation": "7.58 x (1 - 0.05) for a deductible of 50 euros", "amountInEuros": 7.201 },
+        { "order": 4, "code": "package-discount", "calculation": "7.201 x (1 - 0.10), 4 active policies is at least 3", "amountInEuros": 6.4809 },
+        { "order": 5, "code": "minimum-premium", "calculation": "6.4809 is above the minimum of 3.00, unchanged", "amountInEuros": 6.4809 },
+        { "order": 6, "code": "insurance-tax", "calculation": "6.4809 x 1.21", "amountInEuros": 7.841889 },
+        { "order": 7, "code": "rounding", "calculation": "7.841889 rounded half up to cents", "amountInEuros": 7.84 }
+      ],
+      "monthlyPremiumInEuros": 7.84
+    },
+    {
+      "productCode": "rechtsbijstand",
+      "title": "Rechtsbijstandverzekering for Sanne: family, home owner, no legal cases, employment and traffic modules, deductible 0 euros",
+      "forWorkedExampleCustomer": true,
+      "whatItChecks": "A quote for Sanne with two modules: the rating factors multiply the base premium only, never the module prices.",
+      "factorChoices": [
+        { "factorCode": "household", "input": "family", "optionCode": "family", "multiplier": 1.4 },
+        { "factorCode": "housing-situation", "input": "owner", "optionCode": "owner", "multiplier": 1.15 },
+        { "factorCode": "legal-cases-last-five-years", "input": "none", "optionCode": "none", "multiplier": 1 }
+      ],
+      "moduleCodes": ["employment", "traffic"],
+      "deductibleInEuros": 0,
+      "activeDuinzichtPolicies": 4,
+      "steps": [
+        { "order": 1, "code": "base-and-factors", "calculation": "11.20 x 1.40 (family) x 1.15 (owner) x 1.00 (none)", "amountInEuros": 18.032 },
+        { "order": 2, "code": "modules", "calculation": "18.032 + 4.10 (employment) + 2.30 (traffic)", "amountInEuros": 24.432 },
+        { "order": 3, "code": "deductible-discount", "calculation": "24.432 x (1 - 0.00) for a deductible of 0 euros", "amountInEuros": 24.432 },
+        { "order": 4, "code": "package-discount", "calculation": "24.432 x (1 - 0.10), 4 active policies is at least 3", "amountInEuros": 21.9888 },
+        { "order": 5, "code": "minimum-premium", "calculation": "21.9888 is above the minimum of 3.00, unchanged", "amountInEuros": 21.9888 },
+        { "order": 6, "code": "insurance-tax", "calculation": "21.9888 x 1.21", "amountInEuros": 26.606448 },
+        { "order": 7, "code": "rounding", "calculation": "26.606448 rounded half up to cents", "amountInEuros": 26.61 }
+      ],
+      "monthlyPremiumInEuros": 26.61
+    },
+    {
+      "productCode": "fiets",
+      "title": "Fietsverzekering for Sanne: e-bike bought for 2,400 euros, 1 year old, postcode 3521 AB, roadside assistance module, deductible 50 euros",
+      "forWorkedExampleCustomer": true,
+      "whatItChecks": "A quote for Sanne with every kind of rating factor: a choice, two bands and a postcode area (3521 AB is in area 35, zone C).",
+      "factorChoices": [
+        { "factorCode": "bike-type", "input": "e-bike", "optionCode": "e-bike", "multiplier": 1.35 },
+        { "factorCode": "purchase-value", "input": 2400, "optionCode": "up-to-3500", "multiplier": 1.55 },
+        { "factorCode": "bike-age", "input": 1, "optionCode": "up-to-1-year", "multiplier": 1 },
+        { "factorCode": "theft-risk-zone", "input": "3521 AB", "optionCode": "zone-c", "multiplier": 1.45 }
+      ],
+      "moduleCodes": ["roadside-assistance"],
+      "deductibleInEuros": 50,
+      "activeDuinzichtPolicies": 4,
+      "steps": [
+        { "order": 1, "code": "base-and-factors", "calculation": "4.20 x 1.35 (e-bike) x 1.55 (up-to-3500) x 1.00 (up-to-1-year) x 1.45 (zone-c, postcode area 35)", "amountInEuros": 12.743325 },
+        { "order": 2, "code": "modules", "calculation": "12.743325 + 1.50 (roadside-assistance)", "amountInEuros": 14.243325 },
+        { "order": 3, "code": "deductible-discount", "calculation": "14.243325 x (1 - 0.08) for a deductible of 50 euros", "amountInEuros": 13.103859 },
+        { "order": 4, "code": "package-discount", "calculation": "13.103859 x (1 - 0.10), 4 active policies is at least 3", "amountInEuros": 11.7934731 },
+        { "order": 5, "code": "minimum-premium", "calculation": "11.7934731 is above the minimum of 3.00, unchanged", "amountInEuros": 11.7934731 },
+        { "order": 6, "code": "insurance-tax", "calculation": "11.7934731 x 1.21", "amountInEuros": 14.270102451 },
+        { "order": 7, "code": "rounding", "calculation": "14.270102451 rounded half up to cents", "amountInEuros": 14.27 }
+      ],
+      "monthlyPremiumInEuros": 14.27
+    },
+    {
+      "productCode": "reis",
+      "title": "Doorlopende reisverzekering for a single parent with 2 active Duinzicht policies: Europe, trips up to 60 days, cancellation module, deductible 0 euros",
+      "forWorkedExampleCustomer": false,
+      "whatItChecks": "No package discount with 2 active policies, and a premium that ends exactly on half a cent: 9.075 rounds up to 9.08. Binary floating point gives 9.07.",
+      "factorChoices": [
+        { "factorCode": "coverage-area", "input": "europe", "optionCode": "europe", "multiplier": 1 },
+        { "factorCode": "household", "input": "single-parent", "optionCode": "single-parent", "multiplier": 1.5 },
+        { "factorCode": "maximum-trip-duration", "input": "60-days", "optionCode": "60-days", "multiplier": 1 }
+      ],
+      "moduleCodes": ["cancellation"],
+      "deductibleInEuros": 0,
+      "activeDuinzichtPolicies": 2,
+      "steps": [
+        { "order": 1, "code": "base-and-factors", "calculation": "3.40 x 1.00 (europe) x 1.50 (single-parent) x 1.00 (60-days)", "amountInEuros": 5.1 },
+        { "order": 2, "code": "modules", "calculation": "5.10 + 2.40 (cancellation)", "amountInEuros": 7.5 },
+        { "order": 3, "code": "deductible-discount", "calculation": "7.50 x (1 - 0.00) for a deductible of 0 euros", "amountInEuros": 7.5 },
+        { "order": 4, "code": "package-discount", "calculation": "7.50 unchanged, 2 active policies is fewer than 3", "amountInEuros": 7.5 },
+        { "order": 5, "code": "minimum-premium", "calculation": "7.50 is above the minimum of 3.00, unchanged", "amountInEuros": 7.5 },
+        { "order": 6, "code": "insurance-tax", "calculation": "7.50 x 1.21", "amountInEuros": 9.075 },
+        { "order": 7, "code": "rounding", "calculation": "9.075 ends exactly on half a cent and rounds half up to cents", "amountInEuros": 9.08 }
+      ],
+      "monthlyPremiumInEuros": 9.08
+    },
+    {
+      "productCode": "fiets",
+      "title": "Fietsverzekering for a customer in postcode 8011 AB with 4 active Duinzicht policies: regular bike bought for 800 euros, 3 years old, no modules, deductible 100 euros",
+      "forWorkedExampleCustomer": false,
+      "whatItChecks": "The minimum premium: after both discounts the premium is 1.54224, below the minimum of 3.00, so it is raised to 3.00 before tax. Postcode area 80 is in no zone, so it falls in the default zone A.",
+      "factorChoices": [
+        { "factorCode": "bike-type", "input": "regular", "optionCode": "regular", "multiplier": 1 },
+        { "factorCode": "purchase-value", "input": 800, "optionCode": "up-to-1000", "multiplier": 0.6 },
+        { "factorCode": "bike-age", "input": 3, "optionCode": "3-years", "multiplier": 0.8 },
+        { "factorCode": "theft-risk-zone", "input": "8011 AB", "optionCode": "zone-a", "multiplier": 1 }
+      ],
+      "moduleCodes": [],
+      "deductibleInEuros": 100,
+      "activeDuinzichtPolicies": 4,
+      "steps": [
+        { "order": 1, "code": "base-and-factors", "calculation": "4.20 x 1.00 (regular) x 0.60 (up-to-1000) x 0.80 (3-years) x 1.00 (zone-a, postcode area 80)", "amountInEuros": 2.016 },
+        { "order": 2, "code": "modules", "calculation": "2.016, no modules", "amountInEuros": 2.016 },
+        { "order": 3, "code": "deductible-discount", "calculation": "2.016 x (1 - 0.15) for a deductible of 100 euros", "amountInEuros": 1.7136 },
+        { "order": 4, "code": "package-discount", "calculation": "1.7136 x (1 - 0.10), 4 active policies is at least 3", "amountInEuros": 1.54224 },
+        { "order": 5, "code": "minimum-premium", "calculation": "1.54224 is below the minimum of 3.00, raised to 3.00", "amountInEuros": 3 },
+        { "order": 6, "code": "insurance-tax", "calculation": "3.00 x 1.21", "amountInEuros": 3.63 },
+        { "order": 7, "code": "rounding", "calculation": "3.63 rounded half up to cents", "amountInEuros": 3.63 }
+      ],
+      "monthlyPremiumInEuros": 3.63
+    }
+  ]
+}

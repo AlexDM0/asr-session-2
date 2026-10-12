@@ -1,0 +1,50 @@
+.linkCard {
+  display: flex;
+  align-items: center;
+  gap: var(--space-14);
+  padding: var(--space-16) var(--space-20);
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+  color: var(--ink);
+}
+
+.linkCard:hover {
+  color: var(--green);
+}
+
+.linkCard[data-variant='flat'] {
+  padding: var(--space-18) var(--space-20);
+  box-shadow: none;
+}
+
+.text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.linkCard[data-variant='flat'] .text {
+  gap: var(--space-4);
+}
+
+.title {
+  display: flex;
+  align-items: center;
+  font-size: var(--font-size-body);
+  font-weight: var(--weight-semibold);
+}
+
+.linkCard[data-title-emphasis='regular'] .title {
+  font-weight: var(--weight-medium);
+}
+
+.linkCard[data-title-size='large'] .title {
+  font-size: var(--font-size-large);
+}
+
+.subtitle {
+  color: var(--muted);
+  font-size: var(--font-size-small);
+}

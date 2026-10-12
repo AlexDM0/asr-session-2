@@ -1,0 +1,12 @@
+{
+  "name": "@mijn-duinzicht/profile-detail-rules",
+  "description": "Trims, validates and normalises a customer's editable profile details by Dutch rules.",
+  "private": true,
+  "exports": {
+    "./*": "./src/*.ts"
+  },
+  "scripts": {
+    "test": "bun test",
+    "typecheck": "tsc -p tsconfig.json && tsc -p tsconfig.spec.json"
+  }
+}

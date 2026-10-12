@@ -1,0 +1,11 @@
+{
+  "name": "@mijn-duinzicht/dutch-format",
+  "private": true,
+  "exports": {
+    "./*": "./src/*.ts"
+  },
+  "scripts": {
+    "test": "bun test",
+    "typecheck": "tsc -p tsconfig.json && tsc -p tsconfig.spec.json"
+  }
+}

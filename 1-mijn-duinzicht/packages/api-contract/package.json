@@ -1,0 +1,10 @@
+{
+  "name": "@mijn-duinzicht/api-contract",
+  "private": true,
+  "exports": {
+    "./*": "./src/*.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json"
+  }
+}

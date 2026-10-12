@@ -1,0 +1,26 @@
+.compactHeaderBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: var(--compact-header-height);
+  padding: 0 var(--gutter);
+  border-bottom: var(--border-hairline) solid var(--line);
+  background: var(--surface);
+}
+
+.menuButton {
+  display: grid;
+  flex: none;
+  width: var(--touch-target);
+  height: var(--touch-target);
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+  place-items: center;
+}
+
+.menuButton:hover {
+  color: var(--green);
+}

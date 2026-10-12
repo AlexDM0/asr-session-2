@@ -1,0 +1,15 @@
+.skeletonBlock {
+  display: block;
+  flex: none;
+  width: var(--skeleton-width);
+  height: var(--skeleton-height);
+  background: var(--line-soft);
+}
+
+.skeletonBlock[data-shape='round'] {
+  border-radius: var(--radius-round);
+}
+
+.skeletonBlock[data-shape='pill'] {
+  border-radius: var(--radius-toggle);
+}

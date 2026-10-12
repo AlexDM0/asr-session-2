@@ -1,0 +1,22 @@
+{
+  "name": "mijn-duinzicht",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "bun --filter '*' dev",
+    "reset": "bun --filter '@mijn-duinzicht/api' reset",
+    "typecheck": "bun --filter '*' typecheck",
+    "lint": "eslint .",
+    "test": "bun --filter '*' test"
+  },
+  "devDependencies": {
+    "@reliquary/eslint-config": "^1.0.1",
+    "@reliquary/eslint-config-react": "^1.0.1",
+    "@types/bun": "^1.4.2",
+    "eslint": "^9.39.5",
+    "typescript": "~6.0.3"
+  }
+}

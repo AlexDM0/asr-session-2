@@ -1,0 +1,53 @@
+.timeline {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.step {
+  display: flex;
+  gap: var(--space-16);
+}
+
+.marker {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.step[data-state='done'] .marker {
+  color: var(--green);
+}
+
+.step[data-state='current'] .marker {
+  color: var(--amber-icon);
+}
+
+.step[data-state='todo'] .marker {
+  color: var(--step-todo);
+}
+
+.connector {
+  flex: 1;
+  width: var(--border-emphasis);
+  min-height: var(--space-24);
+  background: var(--line);
+}
+
+.text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding-bottom: var(--space-20);
+}
+
+.title {
+  font-weight: var(--weight-semibold);
+}
+
+.description {
+  color: var(--muted);
+  font-size: var(--font-size-small);
+}

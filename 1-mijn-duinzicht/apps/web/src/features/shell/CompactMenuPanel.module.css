@@ -1,0 +1,17 @@
+.compactMenuPanel {
+  position: absolute;
+  z-index: 1;
+  top: 100%;
+  right: 0;
+  left: 0;
+  max-height: calc(100dvh - var(--compact-header-height));
+  overflow-y: auto;
+  border-bottom: var(--border-hairline) solid var(--line);
+  background: var(--surface);
+  box-shadow: var(--shadow-md);
+}
+
+.avatarRow {
+  display: flex;
+  padding: var(--space-16) var(--gutter);
+}

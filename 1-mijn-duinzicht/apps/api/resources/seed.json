@@ -1,0 +1,181 @@
+{
+  "formatVersion": 1,
+  "customer": {
+    "customerNumber": "40218773",
+    "fullName": "Sanne de Vries",
+    "firstName": "Sanne",
+    "initials": "SV",
+    "birthDate": "1988-06-14",
+    "emailAddress": "sanne.devries@example.nl",
+    "emailAddressNeedsConfirmation": true,
+    "emailAddressLastConfirmedYear": 2023,
+    "phoneNumber": "06 12 34 56 78",
+    "address": {
+      "streetAndHouseNumber": "Lindelaan 12",
+      "postcode": "3521 AB",
+      "city": "Utrecht"
+    },
+    "iban": "NL91 INGB 0001 2348 21",
+    "paymentMethod": "automatische incasso maandelijks",
+    "accountHolder": "S. de Vries"
+  },
+  "preferences": {
+    "paperMail": false,
+    "newsletter": true,
+    "claimUpdateTextMessages": true
+  },
+  "directDebitSchedule": {
+    "nextCollectionDate": "2026-11-01"
+  },
+  "policies": [
+    {
+      "id": "DZ-WH-118204",
+      "type": "woonhuis",
+      "name": "Woonhuisverzekering",
+      "subtitle": "Lindelaan 12, Utrecht",
+      "monthlyPremiumEuros": "32.10",
+      "status": "actief",
+      "facts": [
+        { "label": "Premie", "value": "€ 32,10 p/m" },
+        { "label": "Eigen risico", "value": "€ 250" },
+        { "label": "Herbouwwaarde", "value": "€ 412.000" },
+        { "label": "Ingangsdatum", "value": "1 mrt 2021" }
+      ],
+      "coverage": [
+        "Brand, storm en inbraak",
+        "Waterschade door leidingen",
+        "Glas (optioneel, meeverzekerd)"
+      ]
+    },
+    {
+      "id": "DZ-IB-118205",
+      "type": "inboedel",
+      "name": "Inboedelverzekering",
+      "subtitle": "Lindelaan 12, Utrecht",
+      "monthlyPremiumEuros": "14.75",
+      "status": "actief",
+      "facts": [
+        { "label": "Premie", "value": "€ 14,75 p/m" },
+        { "label": "Eigen risico", "value": "€ 100" },
+        { "label": "Verzekerd bedrag", "value": "Garantie" },
+        { "label": "Ingangsdatum", "value": "1 mrt 2021" }
+      ],
+      "coverage": [
+        "Brand en inbraak",
+        "Waterschade",
+        "Buitenshuisdekking"
+      ]
+    },
+    {
+      "id": "DZ-AU-902117",
+      "type": "auto",
+      "name": "Autoverzekering",
+      "subtitle": "Allrisk · GH-482-K",
+      "monthlyPremiumEuros": "41.60",
+      "status": "actief",
+      "facts": [
+        { "label": "Premie", "value": "€ 41,60 p/m" },
+        { "label": "Eigen risico", "value": "€ 300" },
+        { "label": "Kenteken", "value": "GH-482-K" },
+        { "label": "Schadevrije jaren", "value": "9" }
+      ],
+      "coverage": [
+        "WA",
+        "Volledig casco (allrisk)",
+        "Pechhulp Europa"
+      ]
+    },
+    {
+      "id": "DZ-AV-330981",
+      "type": "aansprakelijkheid",
+      "name": "Aansprakelijkheid",
+      "subtitle": "Gezin",
+      "monthlyPremiumEuros": "10.00",
+      "status": "actief",
+      "facts": [
+        { "label": "Premie", "value": "€ 10,00 p/m" },
+        { "label": "Eigen risico", "value": "€ 0" },
+        { "label": "Gezinssamenstelling", "value": "Gezin" },
+        { "label": "Ingangsdatum", "value": "1 jan 2020" }
+      ],
+      "coverage": [
+        "Schade aan anderen",
+        "Schade door kinderen",
+        "Schade door huisdieren"
+      ]
+    }
+  ],
+  "claims": [
+    {
+      "id": "S-2026-0418",
+      "title": "Waterschade badkamer",
+      "category": "huis",
+      "policyId": "DZ-WH-118204",
+      "reportedAt": "2026-10-06T09:14",
+      "status": "in_behandeling",
+      "handlerName": "Joost Meijer",
+      "photoDeadline": "2026-10-15",
+      "steps": [
+        { "title": "Schade gemeld", "description": "6 oktober 2026, 09:14", "state": "done", "waitsForPhotos": false },
+        { "title": "Melding ontvangen", "description": "Behandelaar: Joost Meijer", "state": "done", "waitsForPhotos": false },
+        { "title": "Aanvullende informatie", "description": "Wacht op foto's van jou", "state": "current", "waitsForPhotos": true },
+        { "title": "Beoordeling en uitbetaling", "description": "Binnen 5 werkdagen na ontvangst", "state": "todo", "waitsForPhotos": false }
+      ]
+    },
+    {
+      "id": "S-2025-0127",
+      "title": "Ruitschade voorruit",
+      "category": "auto",
+      "policyId": "DZ-AU-902117",
+      "reportedAt": "2025-05-14T11:20",
+      "status": "uitbetaald",
+      "handlerName": "Lotte Bakker",
+      "photoDeadline": null,
+      "steps": [
+        { "title": "Schade gemeld", "description": "14 mei 2025, 11:20", "state": "done", "waitsForPhotos": false },
+        { "title": "Melding ontvangen", "description": "Behandelaar: Lotte Bakker", "state": "done", "waitsForPhotos": false },
+        { "title": "Aanvullende informatie", "description": "Foto's ontvangen", "state": "done", "waitsForPhotos": false },
+        { "title": "Beoordeling en uitbetaling", "description": "Uitbetaald op 21 mei 2025", "state": "done", "waitsForPhotos": false }
+      ]
+    },
+    {
+      "id": "S-2023-0352",
+      "title": "Gestolen fiets",
+      "category": "huis",
+      "policyId": "DZ-IB-118205",
+      "reportedAt": "2023-11-06T08:47",
+      "status": "uitbetaald",
+      "handlerName": "Joost Meijer",
+      "photoDeadline": null,
+      "steps": [
+        { "title": "Schade gemeld", "description": "6 november 2023, 08:47", "state": "done", "waitsForPhotos": false },
+        { "title": "Melding ontvangen", "description": "Behandelaar: Joost Meijer", "state": "done", "waitsForPhotos": false },
+        { "title": "Aanvullende informatie", "description": "Aangifte van diefstal ontvangen", "state": "done", "waitsForPhotos": false },
+        { "title": "Beoordeling en uitbetaling", "description": "Uitbetaald op 17 november 2023", "state": "done", "waitsForPhotos": false }
+      ]
+    }
+  ],
+  "messages": [
+    {
+      "id": "M-2026-0103",
+      "title": "Ontvangstbevestiging schademelding",
+      "sentOn": "2026-10-06",
+      "isRead": false,
+      "body": "Hoi Sanne,\n\nWe hebben je schademelding S-2026-0418 (Waterschade badkamer) op 6 oktober 2026 ontvangen. Joost Meijer behandelt je melding.\n\nWil je foto's van de schade uploaden? Dan kunnen we je melding afronden. Upload ze uiterlijk 15 oktober 2026 bij Schade.\n\nGroet,\nDuinzicht Verzekeringen"
+    },
+    {
+      "id": "M-2026-0087",
+      "title": "Nieuw polisblad autoverzekering",
+      "sentOn": "2026-09-01",
+      "isRead": true,
+      "body": "Hoi Sanne,\n\nEr staat een nieuw polisblad klaar voor je autoverzekering (DZ-AU-902117). Je dekking en je premie van € 41,60 per maand blijven gelijk. Je vindt het polisblad bij Polissen.\n\nGroet,\nDuinzicht Verzekeringen"
+    },
+    {
+      "id": "M-2026-0021",
+      "title": "Jaaroverzicht 2025",
+      "sentOn": "2026-02-12",
+      "isRead": true,
+      "body": "Hoi Sanne,\n\nJe jaaroverzicht 2025 staat klaar. Je ziet daarin welke premies je in 2025 hebt betaald. Bewaar het overzicht goed, bijvoorbeeld voor je administratie.\n\nGroet,\nDuinzicht Verzekeringen"
+    }
+  ]
+}

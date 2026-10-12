@@ -1,0 +1,29 @@
+.icon {
+  display: inline-block;
+  color: inherit;
+  font-family: var(--font-icon);
+  font-size: var(--icon-size-default);
+  font-style: normal;
+  font-weight: 300;
+  font-feature-settings: 'liga';
+  line-height: var(--line-height-wordmark);
+  letter-spacing: normal;
+  text-transform: none;
+  white-space: nowrap;
+}
+
+.icon[data-size='small'] {
+  font-size: var(--icon-size-small);
+}
+
+.icon[data-size='medium'] {
+  font-size: var(--icon-size-medium);
+}
+
+.icon[data-size='large'] {
+  font-size: var(--icon-size-large);
+}
+
+.icon[data-size='extraLarge'] {
+  font-size: var(--icon-size-extra-large);
+}
