@@ -1,7 +1,8 @@
 # AI Orchestrator, session 2
 
 Two projects in one repository. Run the setup in this folder first: it removes this folder's `.git`
-and makes each project folder its own git repository, so the agent stays inside its project.
+and makes each project folder its own git repository, so the agent stays inside its project. Then
+it installs Bun when it is missing and the dependencies of both projects.
 
 | On | Do |
 |---|---|

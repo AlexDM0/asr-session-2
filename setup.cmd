@@ -1,6 +1,6 @@
 @echo off
 rem Double-click this file to give every project folder of the session 2 repository its own git
-rem repository on Windows. It runs setup.ps1 next to it with the execution policy bypassed for this
+rem repository and install what each project needs on Windows. It runs setup.ps1 next to it with the execution policy bypassed for this
 rem run only and keeps the window open so the messages stay readable.
 setlocal
 set "SETUP_SCRIPT=%~dp0setup.ps1"

@@ -12,15 +12,10 @@ through `bun:sqlite`, ESLint, tests with `bun test`.
 
 ## Getting started
 
-| On | Do |
-|---|---|
-| Windows | Double-click `setup.cmd` |
-| macOS or Linux | Run `./setup.sh` in a terminal |
+The setup in the repository root installs [Bun](https://bun.sh) and the dependencies of this
+folder. Then run `bun run dev` here; the portal opens on `http://localhost:3000`.
 
-The setup script checks for [Bun](https://bun.sh) and offers to install it if it is missing (answer
-`y`), runs `bun install` and then `bun run dev`. The portal opens on `http://localhost:3000`.
-
-Or do it yourself: install Bun 1.4.2 or newer, then run from this folder:
+Without the root setup: install Bun 1.4.2 or newer, then run from this folder:
 
 ```bash
 bun install

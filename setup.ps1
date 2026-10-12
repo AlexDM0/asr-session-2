@@ -1,17 +1,21 @@
 <#
 .SYNOPSIS
-  setup.ps1 - turn every project folder of the session 2 repository into its own git repository,
-  on Windows.
+  setup.ps1 - turn every project folder of the session 2 repository into its own git repository and
+  install what each project needs, on Windows.
 
 .DESCRIPTION
   1. Checks that git works and that this folder is not inside another git repository
   2. Removes the .git of this folder, after asking: the clone's history goes, every file stays
   3. git init and a first commit in 1-mijn-duinzicht\ and 2-duinzicht-products-mcp\
+  4. Bun: checks that it works, offers to install it when it is missing
+     (winget when it is available, otherwise the official installer)
+  5. bun install in 1-mijn-duinzicht\ and 2-duinzicht-products-mcp\
 
   One repository per project keeps the agent inside the project: Copilot CLI and worktree sessions
-  work from the git root. Safe to run again: a project that is already a repository is left alone.
-  Works in Windows PowerShell 5.1 and PowerShell 7. Deliberately pure ASCII, so 5.1 parses it
-  without a BOM. setup.cmd next to this file starts it with the execution policy bypassed.
+  work from the git root. Safe to run again: every step checks before it changes anything. Works in
+  Windows PowerShell 5.1 and PowerShell 7. Deliberately pure ASCII, so 5.1 parses it without a BOM.
+  setup.cmd next to this file starts it with the execution policy bypassed; setup.sh hands off to it
+  on Git Bash.
 
 .EXAMPLE
   powershell -NoProfile -ExecutionPolicy Bypass -File .\setup.ps1
@@ -27,6 +31,11 @@ $script:ProjectFolders = @('1-mijn-duinzicht', '2-duinzicht-products-mcp')
 $script:FirstCommitMessage = 'Starter'
 $script:FallbackAuthorName = 'Duinzicht workshop'
 $script:FallbackAuthorEmail = 'workshop@duinzicht.example'
+$script:RecommendedBunVersion = '1.4.2'
+
+# Windows PowerShell 5.1 can still default to TLS 1.0, which bun.sh and GitHub refuse.
+$script:ForceTls12Command = '[Net.ServicePointManager]::SecurityProtocol = [Net.ServicePointManager]::SecurityProtocol -bor [Net.SecurityProtocolType]::Tls12'
+try { [Net.ServicePointManager]::SecurityProtocol = [Net.ServicePointManager]::SecurityProtocol -bor [Net.SecurityProtocolType]::Tls12 } catch { }
 
 # --- Output helpers ----------------------------------------------------------
 # Glyphs are built from code points so the source stays pure ASCII.
@@ -39,6 +48,7 @@ function Write-Bold($message) { Write-Host $message -ForegroundColor White }
 function Write-Step($message) { Write-Host ''; Write-Host $message -ForegroundColor White }
 function Write-Info($message) { Write-Host "$script:BulletGlyph $message" -ForegroundColor Cyan }
 function Write-Ok($message)   { Write-Host "$script:CheckGlyph $message" -ForegroundColor Green }
+function Write-Warn($message) { Write-Host "! $message" -ForegroundColor Yellow }
 function Write-ErrorMessage($message) { Write-Host "$script:CrossGlyph $message" -ForegroundColor Red }
 
 # Ask a yes/no question; anything but y counts as no.
@@ -66,11 +76,77 @@ function Get-GitValue($key) {
     return (& git config --get $key 2>$null | Out-String).Trim()
 }
 
+function Test-CommandExists($name) {
+    return [bool](Get-Command $name -ErrorAction SilentlyContinue)
+}
+
+function Show-BunInstallHelp {
+    Write-Host ''
+    Write-Info 'Install Bun yourself, then open a new window and run setup again:'
+    Write-Host '    winget install --id Oven-sh.Bun --exact'
+    Write-Info 'or, without winget:'
+    Write-Host '    powershell -c "irm bun.sh/install.ps1 | iex"'
+    Write-Info 'More information: https://bun.sh/docs/installation'
+}
+
+function Get-BunBinDirectory {
+    $bunInstallRoot = if ($env:BUN_INSTALL) { $env:BUN_INSTALL } else { Join-Path $HOME '.bun' }
+    return (Join-Path $bunInstallRoot 'bin')
+}
+
+# Installers write the user PATH in the registry; this window only sees it after a reopen, so read
+# it back. Bun's own installer directory goes first.
+function Update-SessionPath {
+    $pathEntries = @(
+        (Get-BunBinDirectory),
+        $env:PATH,
+        [Environment]::GetEnvironmentVariable('Path', 'Machine'),
+        [Environment]::GetEnvironmentVariable('Path', 'User')
+    ) | Where-Object { $_ }
+    $env:PATH = $pathEntries -join [IO.Path]::PathSeparator
+}
+
+# Run a downloaded installer in a child PowerShell: installer scripts set their own
+# ErrorActionPreference and may call exit, which must not end this script.
+function Invoke-OfficialInstaller($installerUrl) {
+    $powerShellExecutable = (Get-Process -Id $PID).Path
+    $global:LASTEXITCODE = 1
+    & $powerShellExecutable -NoProfile -ExecutionPolicy Bypass -Command "$script:ForceTls12Command; irm $installerUrl | iex"
+    return ($LASTEXITCODE -eq 0)
+}
+
+function Install-Bun {
+    if (Test-CommandExists 'winget') {
+        Write-Info 'Installing Bun with winget (winget install --id Oven-sh.Bun --exact)...'
+        $global:LASTEXITCODE = 1
+        & winget install --id Oven-sh.Bun --exact
+        if ($LASTEXITCODE -eq 0) { return $true }
+        Write-Warn "winget did not finish (exit code $LASTEXITCODE). Trying the official installer instead."
+    }
+    Write-Info 'Installing Bun with the official installer (irm https://bun.sh/install.ps1 | iex)...'
+    # Bun's install.ps1 reports a failure with return 1, so the child PowerShell still exits 0.
+    $installerExitedCleanly = Invoke-OfficialInstaller 'https://bun.sh/install.ps1'
+    return ($installerExitedCleanly -and (Test-Path (Join-Path (Get-BunBinDirectory) 'bun.exe')))
+}
+
+# Returns the version bun reports, or $null when bun does not run.
+function Get-BunVersion {
+    try {
+        # Reset first so a stale 0 from an earlier call cannot pass for success.
+        $global:LASTEXITCODE = 1
+        $bunOutput = (& bun --version 2>&1 | Out-String)
+        if ($LASTEXITCODE -eq 0 -and $bunOutput.Trim()) {
+            return ($bunOutput -split "`r?`n" | Where-Object { $_.Trim() } | Select-Object -First 1).Trim()
+        }
+    } catch { }
+    return $null
+}
+
 function Invoke-Setup {
     Write-Bold 'Splitting the session 2 repository into one repository per project'
 
     # --- 1. Checks -----------------------------------------------------------
-    Write-Step '1/3 Checks'
+    Write-Step '1/5 Checks'
     if (-not (Get-Command 'git' -ErrorAction SilentlyContinue)) {
         Write-ErrorMessage 'git was not found. Install it from https://git-scm.com and run setup again.'
         $script:SetupExitCode = 1; return
@@ -95,7 +171,7 @@ function Invoke-Setup {
     Write-Ok 'This folder is not inside another git repository.'
 
     # --- 2. Remove the repository of this folder -------------------------------
-    Write-Step '2/3 Remove the repository of this folder'
+    Write-Step '2/5 Remove the repository of this folder'
     $repositoryPath = Join-Path (Get-Location).Path '.git'
     if (Test-Path -Path $repositoryPath) {
         Write-Info 'Every project gets its own repository, so the agent stays inside its project folder.'
@@ -116,7 +192,7 @@ function Invoke-Setup {
     }
 
     # --- 3. One repository per project -----------------------------------------
-    Write-Step '3/3 One repository per project'
+    Write-Step '3/5 One repository per project'
     $commitIdentity = @()
     if (-not (Get-GitValue 'user.name') -or -not (Get-GitValue 'user.email')) {
         Write-Info "git has no name and email set up, so the first commits use `"$script:FallbackAuthorName`"."
@@ -141,8 +217,67 @@ function Invoke-Setup {
         Write-Ok "$projectFolder is its own repository, with a first commit on main."
     }
 
+    # --- 4. Bun --------------------------------------------------------------
+    Write-Step '4/5 Bun'
+    $bunBinDirectory = Get-BunBinDirectory
+    # A Bun installed in another window is only on this window's PATH after a reopen.
+    if (Test-Path $bunBinDirectory) { $env:PATH = $bunBinDirectory + [IO.Path]::PathSeparator + $env:PATH }
+
+    if (-not (Test-CommandExists 'bun')) {
+        Write-ErrorMessage 'Bun was not found.'
+        $installQuestion = if (Test-CommandExists 'winget') {
+            'Install Bun now with winget (winget install --id Oven-sh.Bun --exact)?'
+        } else {
+            'Install Bun now with the official installer (irm https://bun.sh/install.ps1 | iex)?'
+        }
+        if (-not (Confirm-Offer $installQuestion)) {
+            Write-ErrorMessage 'Bun is required.'
+            Show-BunInstallHelp
+            $script:SetupExitCode = 1; return
+        }
+        if (-not (Install-Bun)) {
+            Write-ErrorMessage 'The Bun installer did not finish.'
+            Show-BunInstallHelp
+            $script:SetupExitCode = 1; return
+        }
+        Update-SessionPath
+        if (-not (Test-CommandExists 'bun')) {
+            Write-ErrorMessage 'Bun was installed but this window cannot find it. Close it, open a new one and run setup again.'
+            $script:SetupExitCode = 1; return
+        }
+    }
+
+    $bunVersion = Get-BunVersion
+    if (-not $bunVersion) {
+        Write-ErrorMessage "Found bun at $((Get-Command bun).Source), but it does not run. The install looks broken."
+        Show-BunInstallHelp
+        $script:SetupExitCode = 1; return
+    }
+    Write-Ok "Bun $bunVersion works ($((Get-Command bun).Source))."
+
+    $bunReleaseVersion = $bunVersion -replace '-.*$', ''
+    $parsedBunVersion = $null
+    if ([version]::TryParse($bunReleaseVersion, [ref]$parsedBunVersion) -and
+        $parsedBunVersion -lt [version]$script:RecommendedBunVersion) {
+        Write-Warn "Bun $script:RecommendedBunVersion or newer is recommended. Update it with:  bun upgrade"
+    }
+
+    # --- 5. Dependencies -----------------------------------------------------
+    Write-Step '5/5 Dependencies'
+    foreach ($projectFolder in $script:ProjectFolders) {
+        Write-Info "Running bun install in $projectFolder..."
+        $global:LASTEXITCODE = 1
+        Push-Location -Path $projectFolder
+        try { & bun install } finally { Pop-Location }
+        if ($LASTEXITCODE -ne 0) {
+            Write-ErrorMessage "bun install failed in $projectFolder. Check your internet connection (or HTTPS_PROXY behind a proxy) and run setup again."
+            $script:SetupExitCode = 1; return
+        }
+    }
+    Write-Ok 'Every project is installed.'
+
     Write-Host ''
-    Write-Info 'Next: open the 1-mijn-duinzicht folder in VS Code and run its setup script there.'
+    Write-Info 'Next: open the 1-mijn-duinzicht folder in VS Code and start the portal there with:  bun run dev'
 }
 
 if ($PSScriptRoot) {

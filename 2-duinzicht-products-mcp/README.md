@@ -8,12 +8,9 @@ It runs locally on your machine at `http://localhost:3333/mcp` (Streamable HTTP)
 
 This folder sits next to the portal folder in the session 2 repository, never inside it. Copilot must get the rules only through the MCP server, not by reading the JSON files.
 
-### With the setup script
+### After the root setup
 
-- **Windows:** double-click `setup.cmd`.
-- **macOS, Linux or Git Bash:** run `./setup.sh`.
-
-The script offers to install Bun if it is missing, runs `bun install` and starts the server with `bun run dev`. To stop after `bun install`, run `./setup.sh --no-start` (PowerShell: `.\setup.ps1 -NoStart`). Leave the window open while you use the server. When it runs, you see:
+The setup in the repository root installs Bun and the dependencies of this folder. Run `bun run dev` here and leave the window open while you use the server. When it runs, you see:
 
 ```text
 Loaded 7 products from .../2-duinzicht-products-mcp/data
