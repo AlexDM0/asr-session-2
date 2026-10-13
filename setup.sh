@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 #
 # setup.sh - turn every project folder of the session 2 repository into its own git repository and
-# install what each project needs, on macOS, Linux or Git Bash.
+# install what each project needs, on macOS, Linux or Git Bash. Runs unattended.
 #
 #   1. Checks that git works and that this folder is not inside another git repository
-#   2. Removes the .git of this folder, after asking: the clone's history goes, every file stays
+#   2. Removes the .git of this folder when it holds no work that exists nowhere else
 #   3. Spec Kit: installs its speckit-* skills in 1-mijn-duinzicht/ with specify init, through uv
 #   4. git init and a first commit in 1-mijn-duinzicht/ and 2-duinzicht-products-mcp/
-#   5. Bun: checks that it works, offers the official installer when it is missing
+#   5. Bun: checks that it works, installs it with the official installer when it is missing
 #   6. bun install in 1-mijn-duinzicht/ and 2-duinzicht-products-mcp/
 #
 # One repository per project keeps the agent inside the project: Copilot CLI and worktree sessions
@@ -31,7 +31,9 @@ cd "$SCRIPT_DIRECTORY"
 PROJECT_FOLDERS=("1-mijn-duinzicht" "2-duinzicht-products-mcp")
 RECOMMENDED_BUN_VERSION="1.4.2"
 SPEC_KIT_PROJECT_FOLDER="1-mijn-duinzicht"
-SPEC_KIT_SOURCE="git+https://github.com/github/spec-kit.git@v1.1.3"
+# The tag archive instead of git+https: uv downloads it itself, so neither git nor git's proxy and
+# certificate settings are needed.
+SPEC_KIT_SOURCE="https://github.com/github/spec-kit/archive/refs/tags/v1.1.3.zip"
 FIRST_COMMIT_MESSAGE="Starter"
 FALLBACK_AUTHOR_NAME="Duinzicht workshop"
 FALLBACK_AUTHOR_EMAIL="workshop@duinzicht.example"
@@ -50,13 +52,6 @@ info() { printf '\033[36m•\033[0m %s\n' "$1"; }
 ok()   { printf '\033[32m✓\033[0m %s\n' "$1"; }
 warn() { printf '\033[33m!\033[0m %s\n' "$1"; }
 error_message() { printf '\033[31m✗\033[0m %s\n' "$1" >&2; }
-
-# offer "question" -> 0 when the answer is yes. No terminal to answer from counts as no.
-offer() {
-  local answer=""
-  read -r -p "  $1 [y/N] " answer || true
-  [[ "$answer" == "y" || "$answer" == "Y" ]]
-}
 
 # --- Detect the platform -----------------------------------------------------
 case "$(uname -s 2>/dev/null || echo unknown)" in
@@ -82,6 +77,18 @@ print_bun_install_help() {
   info "More information: https://bun.sh/docs/installation"
 }
 
+# Downloads installer script $1 and runs it with shell $2, with curl or else wget.
+run_official_installer() {
+  if command -v curl >/dev/null 2>&1; then
+    curl -fsSL "$1" | "$2"
+  elif command -v wget >/dev/null 2>&1; then
+    wget -qO- "$1" | "$2"
+  else
+    error_message "Neither curl nor wget was found, so $1 cannot be downloaded."
+    return 1
+  fi
+}
+
 # True when directory $1 is one of the entries of $2, a PATH-style list.
 path_list_contains() {
   case ":$2:" in
@@ -90,17 +97,39 @@ path_list_contains() {
   esac
 }
 
+# True when project folder $1 is a repository with at least one commit.
+has_first_commit() {
+  git -C "$1" rev-parse --verify --quiet HEAD >/dev/null 2>&1
+}
+
+# Prints why removing the .git of this folder would lose work, or nothing when it is safe. Any git
+# error counts as unsafe, so a repository git cannot read is never removed blindly.
+describe_work_only_in_this_clone() {
+  local git_output
+  if ! git_output="$(git status --porcelain 2>&1)"; then
+    printf 'git cannot read this repository:\n%s\n' "$git_output"; return
+  fi
+  if [ -n "$git_output" ]; then echo "It has changed or new files."; return; fi
+  if [ -n "$(git stash list 2>/dev/null)" ]; then echo "It has stashed changes."; return; fi
+  if git rev-parse --verify --quiet HEAD >/dev/null &&
+     [ -n "$(git rev-list HEAD --not --remotes 2>/dev/null | head -n 1)" ]; then
+    echo "It has commits that are on no remote."
+  fi
+}
+
 # The startup file a new terminal of the login shell reads, or nothing for a shell this script
-# leaves alone.
+# leaves alone. A new ~/.bash_profile would hide an existing ~/.profile from bash, so that one only
+# when it already exists.
 shell_startup_file() {
   case "$(basename "${SHELL:-}")" in
     zsh)  echo "${ZDOTDIR:-$HOME}/.zshrc" ;;
-    bash) if [ "$PLATFORM" = "macos" ]; then echo "$HOME/.bash_profile"; else echo "$HOME/.bashrc"; fi ;;
+    bash)
+      if [ "$PLATFORM" != "macos" ]; then echo "$HOME/.bashrc"
+      elif [ -f "$HOME/.bash_profile" ]; then echo "$HOME/.bash_profile"
+      elif [ -f "$HOME/.bash_login" ]; then echo "$HOME/.bash_login"
+      else echo "$HOME/.profile"
+      fi ;;
   esac
-}
-
-append_bun_to_startup_file() {
-  printf '\n# Bun\nexport BUN_INSTALL="%s"\nexport PATH="$BUN_INSTALL/bin:$PATH"\n' "$BUN_INSTALL_ROOT" >> "$1"
 }
 
 # Bun's installer only edits a startup file that already exists, so on a Mac without ~/.zshrc new
@@ -109,14 +138,34 @@ make_new_terminals_find_bun() {
   local startup_file
   startup_file="$(shell_startup_file)"
   if [ -z "$startup_file" ] || grep -qsE 'BUN_INSTALL|\.bun/bin' "$startup_file"; then return 0; fi
-  warn "$BUN_BIN_DIRECTORY is not on your PATH yet, so a new terminal does not find bun."
-  if offer "Add it to $startup_file now?" && append_bun_to_startup_file "$startup_file" 2>/dev/null; then
+  info "$BUN_BIN_DIRECTORY is not on your PATH yet. Adding it to $startup_file..."
+  if printf '\n# Bun\nexport BUN_INSTALL="%s"\nexport PATH="$BUN_INSTALL/bin:$PATH"\n' "$BUN_INSTALL_ROOT" >> "$startup_file" 2>/dev/null; then
     ok "Added. It takes effect in new terminals."
   else
-    info "Add these lines to $startup_file yourself, then open a new terminal:"
+    warn "Could not write $startup_file. Add these lines to it yourself, then open a new terminal:"
     echo "    export BUN_INSTALL=\"$BUN_INSTALL_ROOT\""
     echo '    export PATH="$BUN_INSTALL/bin:$PATH"'
   fi
+}
+
+# Bun brings its own certificate bundle. A TLS-inspecting proxy re-signs traffic with a company
+# certificate that only the system store trusts, so hand bun the system's certificates as well.
+export_system_certificates_for_bun() {
+  if [ -n "${NODE_EXTRA_CA_CERTS:-}" ]; then return 0; fi
+  local certificate_file
+  case "$PLATFORM" in
+    macos)
+      certificate_file="${TMPDIR:-/tmp}/duinzicht-system-certificates.pem"
+      if security find-certificate -a -p /Library/Keychains/System.keychain \
+           /System/Library/Keychains/SystemRootCertificates.keychain > "$certificate_file" 2>/dev/null &&
+         [ -s "$certificate_file" ]; then
+        export NODE_EXTRA_CA_CERTS="$certificate_file"
+      fi ;;
+    linux)
+      for certificate_file in /etc/ssl/certs/ca-certificates.crt /etc/pki/tls/certs/ca-bundle.crt /etc/ssl/cert.pem; do
+        if [ -s "$certificate_file" ]; then export NODE_EXTRA_CA_CERTS="$certificate_file"; return 0; fi
+      done ;;
+  esac
 }
 
 # True when version $1 is older than version $2. Both are plain x.y.z numbers.
@@ -135,11 +184,12 @@ bold "Splitting the session 2 repository into one repository per project ($PLATF
 
 # --- 1. Checks ---------------------------------------------------------------
 step "1/6 Checks"
-if ! command -v git >/dev/null 2>&1; then
-  error_message "git was not found. Install it from https://git-scm.com and run ./setup.sh again."
+# On a Mac without the developer tools, /usr/bin/git exists but only offers to install them.
+if ! command -v git >/dev/null 2>&1 || ! git_version="$(git --version 2>/dev/null)"; then
+  error_message "git does not work yet. Install it from https://git-scm.com (on a Mac: xcode-select --install) and run ./setup.sh again."
   exit 1
 fi
-ok "$(git --version) works."
+ok "$git_version works."
 
 for project_folder in "${PROJECT_FOLDERS[@]}"; do
   if [ ! -d "$project_folder" ]; then
@@ -149,8 +199,11 @@ for project_folder in "${PROJECT_FOLDERS[@]}"; do
 done
 
 # Nested repositories inside someone else's repository would turn up there as embedded repositories.
-if enclosing_repository="$(git -C "$SCRIPT_DIRECTORY/.." rev-parse --show-toplevel 2>/dev/null)"; then
-  error_message "This folder is inside another git repository: $enclosing_repository"
+# Any answer but "not a git repository" counts as inside one, so an unreadable parent never passes.
+if enclosing_output="$(LC_ALL=C git -C "$SCRIPT_DIRECTORY/.." rev-parse --show-toplevel 2>&1)" ||
+   ! printf '%s' "$enclosing_output" | grep -qi "not a git repository"; then
+  error_message "This folder is inside another git repository, or git cannot tell:"
+  printf '%s\n' "$enclosing_output" >&2
   info "Copy the folder somewhere outside that repository and run ./setup.sh there."
   exit 1
 fi
@@ -159,33 +212,38 @@ ok "This folder is not inside another git repository."
 # --- 2. Remove the repository of this folder -----------------------------------
 step "2/6 Remove the repository of this folder"
 if [ -e ".git" ]; then
-  info "Every project gets its own repository, so the agent stays inside its project folder."
-  info "This removes $SCRIPT_DIRECTORY/.git: the history of this clone goes, every file stays."
-  if ! offer "Remove it now?"; then
-    error_message "Nothing changed. Run ./setup.sh again when you are ready."
+  work_only_in_this_clone="$(describe_work_only_in_this_clone)"
+  if [ -n "$work_only_in_this_clone" ]; then
+    error_message "This folder's repository holds work that exists nowhere else, so setup leaves it alone."
+    printf '%s\n' "$work_only_in_this_clone" >&2
+    info "Push or remove that work, or clone the repository again in a new folder, and run ./setup.sh there."
     exit 1
   fi
-  rm -rf ".git"
-  ok "Removed."
+  info "Every project gets its own repository, so the agent stays inside its project folder."
+  if ! rm -rf ".git"; then
+    error_message "Could not remove $SCRIPT_DIRECTORY/.git. Close programs that use this folder and run ./setup.sh again."
+    exit 1
+  fi
+  ok "Removed $SCRIPT_DIRECTORY/.git: the history of this clone is gone, every file stays."
 else
   ok "This folder is no repository any more."
 fi
 
 # --- 3. Spec Kit ---------------------------------------------------------------
-# Before the first commit, so the skills are part of it. specify init keeps the starter's own
-# constitution, templates and scripts; it only adds the skills and its own metadata.
+# Before the first commit, so the skills are part of it. specify init --force keeps the starter's
+# constitution and rewrites the templates and scripts in .specify with Spec Kit's own; it adds the
+# skills and its metadata. Until that first commit exists it runs every time, so an interrupted run
+# never leaves half the skills behind.
 step "3/6 Spec Kit"
-if [ -d "$SPEC_KIT_PROJECT_FOLDER/.github/skills/speckit-specify" ]; then
-  ok "The Spec Kit skills are already in $SPEC_KIT_PROJECT_FOLDER."
+if has_first_commit "$SPEC_KIT_PROJECT_FOLDER"; then
+  ok "The Spec Kit skills are already part of the first commit of $SPEC_KIT_PROJECT_FOLDER."
 else
-  UV_BIN_DIRECTORY="$HOME/.local/bin"
+  UV_BIN_DIRECTORY="${UV_INSTALL_DIR:-${XDG_BIN_HOME:-$HOME/.local/bin}}"
   # A uv installed in another terminal is only on this terminal's PATH after a restart.
   if [ -d "$UV_BIN_DIRECTORY" ]; then export PATH="$UV_BIN_DIRECTORY:$PATH"; fi
   if ! command -v uvx >/dev/null 2>&1; then
-    error_message "uv was not found. Spec Kit installs through uv."
-    if offer "Install uv now with the official installer (curl -LsSf https://astral.sh/uv/install.sh | sh)?" &&
-       command -v curl >/dev/null 2>&1 &&
-       curl -LsSf https://astral.sh/uv/install.sh | sh; then
+    info "uv was not found; Spec Kit installs through it. Installing uv with the official installer (https://astral.sh/uv/install.sh)..."
+    if run_official_installer https://astral.sh/uv/install.sh sh; then
       export PATH="$UV_BIN_DIRECTORY:$PATH"
     fi
     if ! command -v uvx >/dev/null 2>&1; then
@@ -193,10 +251,18 @@ else
       exit 1
     fi
   fi
-  info "Installing the Spec Kit skills in $SPEC_KIT_PROJECT_FOLDER..."
-  if ! specify_output="$(cd "$SPEC_KIT_PROJECT_FOLDER" && uvx --from "$SPEC_KIT_SOURCE" specify init --here --force --non-interactive \
-       --integration copilot --integration-options="--skills" --script sh --ignore-agent-tools 2>&1)"; then
-    printf '%s\n' "$specify_output"
+  # A TLS-inspecting proxy re-signs traffic with a company certificate that only the system store
+  # trusts; uv's own certificate bundle would reject it.
+  if [ -z "${UV_SYSTEM_CERTS:-}${UV_NATIVE_TLS:-}" ]; then
+    if uv tool install --help 2>/dev/null | grep -q -- '--system-certs'; then
+      export UV_SYSTEM_CERTS=1
+    else
+      export UV_NATIVE_TLS=1
+    fi
+  fi
+  info "Installing the Spec Kit skills in $SPEC_KIT_PROJECT_FOLDER. The first time this can take a few minutes..."
+  if ! (cd "$SPEC_KIT_PROJECT_FOLDER" && uvx --from "$SPEC_KIT_SOURCE" specify init --here --force --non-interactive \
+       --integration copilot --integration-options="--skills" --script sh --ignore-agent-tools); then
     error_message "specify init failed. Check your internet connection (or HTTPS_PROXY behind a proxy) and run ./setup.sh again."
     exit 1
   fi
@@ -205,23 +271,28 @@ fi
 
 # --- 4. One repository per project --------------------------------------------------
 step "4/6 One repository per project"
-commit_identity=()
+uses_fallback_identity=0
 if [ -z "$(git config --get user.name || true)" ] || [ -z "$(git config --get user.email || true)" ]; then
-  info "git has no name and email set up, so the first commits use \"$FALLBACK_AUTHOR_NAME\"."
-  info "Set your own for later commits:  git config --global user.name \"Your Name\""
-  commit_identity=(-c "user.name=$FALLBACK_AUTHOR_NAME" -c "user.email=$FALLBACK_AUTHOR_EMAIL")
+  uses_fallback_identity=1
+  info "git has no name and email set up, so the project repositories use \"$FALLBACK_AUTHOR_NAME\"."
+  info "Set your own with:  git config --global user.name \"Your Name\""
 fi
 
 for project_folder in "${PROJECT_FOLDERS[@]}"; do
-  if [ -e "$project_folder/.git" ]; then
+  if has_first_commit "$project_folder"; then
     ok "$project_folder is already its own repository."
     continue
   fi
+  # A .git without a commit is what an interrupted run leaves behind; init again finishes it.
   # symbolic-ref instead of init --initial-branch, which git before 2.28 does not know.
+  # The first commit skips the user's signing and hooks: a gpg or hook setup must not block it.
   if git -C "$project_folder" init --quiet &&
      git -C "$project_folder" symbolic-ref HEAD refs/heads/main &&
+     { [ "$uses_fallback_identity" = 0 ] ||
+       { git -C "$project_folder" config user.name "$FALLBACK_AUTHOR_NAME" &&
+         git -C "$project_folder" config user.email "$FALLBACK_AUTHOR_EMAIL"; }; } &&
      git -C "$project_folder" add --all &&
-     git -C "$project_folder" ${commit_identity[@]+"${commit_identity[@]}"} commit --quiet --message "$FIRST_COMMIT_MESSAGE"; then
+     git -C "$project_folder" -c commit.gpgsign=false commit --quiet --no-verify --message "$FIRST_COMMIT_MESSAGE"; then
     ok "$project_folder is its own repository, with a first commit on main."
   else
     error_message "Making $project_folder a repository failed. Read the messages above and run ./setup.sh again."
@@ -239,26 +310,15 @@ BUN_BIN_DIRECTORY="$BUN_INSTALL_ROOT/bin"
 if [ -d "$BUN_BIN_DIRECTORY" ]; then export PATH="$BUN_BIN_DIRECTORY:$PATH"; fi
 
 if ! command -v bun >/dev/null 2>&1; then
-  error_message "Bun was not found."
-  if offer "Install Bun now with the official installer (curl -fsSL https://bun.sh/install | bash)?"; then
-    if ! command -v curl >/dev/null 2>&1; then
-      error_message "curl is needed to download Bun and was not found."
-      print_bun_install_help
-      exit 1
-    fi
-    if ! curl -fsSL https://bun.sh/install | bash; then
-      error_message "The Bun installer did not finish."
-      print_bun_install_help
-      exit 1
-    fi
-    export PATH="$BUN_BIN_DIRECTORY:$PATH"
-    if ! command -v bun >/dev/null 2>&1; then
-      error_message "Bun was installed but this terminal cannot find it. Open a new terminal and run ./setup.sh again."
-      exit 1
-    fi
-  else
-    error_message "Bun is required."
+  info "Bun was not found. Installing it with the official installer (https://bun.sh/install)..."
+  if ! run_official_installer https://bun.sh/install bash; then
+    error_message "The Bun installer did not finish."
     print_bun_install_help
+    exit 1
+  fi
+  export PATH="$BUN_BIN_DIRECTORY:$PATH"
+  if ! command -v bun >/dev/null 2>&1; then
+    error_message "Bun was installed but this terminal cannot find it. Open a new terminal and run ./setup.sh again."
     exit 1
   fi
 fi
@@ -281,6 +341,7 @@ fi
 
 # --- 6. Dependencies -------------------------------------------------------------
 step "6/6 Dependencies"
+export_system_certificates_for_bun
 for project_folder in "${PROJECT_FOLDERS[@]}"; do
   info "Running bun install in $project_folder..."
   if ! (cd "$project_folder" && bun install); then
