@@ -5,9 +5,10 @@
 #
 #   1. Checks that git works and that this folder is not inside another git repository
 #   2. Removes the .git of this folder, after asking: the clone's history goes, every file stays
-#   3. git init and a first commit in 1-mijn-duinzicht/ and 2-duinzicht-products-mcp/
-#   4. Bun: checks that it works, offers the official installer when it is missing
-#   5. bun install in 1-mijn-duinzicht/ and 2-duinzicht-products-mcp/
+#   3. Spec Kit: installs its speckit-* skills in 1-mijn-duinzicht/ with specify init, through uv
+#   4. git init and a first commit in 1-mijn-duinzicht/ and 2-duinzicht-products-mcp/
+#   5. Bun: checks that it works, offers the official installer when it is missing
+#   6. bun install in 1-mijn-duinzicht/ and 2-duinzicht-products-mcp/
 #
 # One repository per project keeps the agent inside the project: Copilot CLI and worktree sessions
 # work from the git root. Safe to run again: every step checks before it changes anything. On Git
@@ -29,6 +30,8 @@ cd "$SCRIPT_DIRECTORY"
 
 PROJECT_FOLDERS=("1-mijn-duinzicht" "2-duinzicht-products-mcp")
 RECOMMENDED_BUN_VERSION="1.4.2"
+SPEC_KIT_PROJECT_FOLDER="1-mijn-duinzicht"
+SPEC_KIT_SOURCE="git+https://github.com/github/spec-kit.git@v1.1.3"
 FIRST_COMMIT_MESSAGE="Starter"
 FALLBACK_AUTHOR_NAME="Duinzicht workshop"
 FALLBACK_AUTHOR_EMAIL="workshop@duinzicht.example"
@@ -131,7 +134,7 @@ version_is_older() {
 bold "Splitting the session 2 repository into one repository per project ($PLATFORM)"
 
 # --- 1. Checks ---------------------------------------------------------------
-step "1/5 Checks"
+step "1/6 Checks"
 if ! command -v git >/dev/null 2>&1; then
   error_message "git was not found. Install it from https://git-scm.com and run ./setup.sh again."
   exit 1
@@ -154,7 +157,7 @@ fi
 ok "This folder is not inside another git repository."
 
 # --- 2. Remove the repository of this folder -----------------------------------
-step "2/5 Remove the repository of this folder"
+step "2/6 Remove the repository of this folder"
 if [ -e ".git" ]; then
   info "Every project gets its own repository, so the agent stays inside its project folder."
   info "This removes $SCRIPT_DIRECTORY/.git: the history of this clone goes, every file stays."
@@ -168,8 +171,40 @@ else
   ok "This folder is no repository any more."
 fi
 
-# --- 3. One repository per project --------------------------------------------------
-step "3/5 One repository per project"
+# --- 3. Spec Kit ---------------------------------------------------------------
+# Before the first commit, so the skills are part of it. specify init keeps the starter's own
+# constitution, templates and scripts; it only adds the skills and its own metadata.
+step "3/6 Spec Kit"
+if [ -d "$SPEC_KIT_PROJECT_FOLDER/.github/skills/speckit-specify" ]; then
+  ok "The Spec Kit skills are already in $SPEC_KIT_PROJECT_FOLDER."
+else
+  UV_BIN_DIRECTORY="$HOME/.local/bin"
+  # A uv installed in another terminal is only on this terminal's PATH after a restart.
+  if [ -d "$UV_BIN_DIRECTORY" ]; then export PATH="$UV_BIN_DIRECTORY:$PATH"; fi
+  if ! command -v uvx >/dev/null 2>&1; then
+    error_message "uv was not found. Spec Kit installs through uv."
+    if offer "Install uv now with the official installer (curl -LsSf https://astral.sh/uv/install.sh | sh)?" &&
+       command -v curl >/dev/null 2>&1 &&
+       curl -LsSf https://astral.sh/uv/install.sh | sh; then
+      export PATH="$UV_BIN_DIRECTORY:$PATH"
+    fi
+    if ! command -v uvx >/dev/null 2>&1; then
+      error_message "uv is required for Spec Kit. Install it from https://docs.astral.sh/uv/ and run ./setup.sh again."
+      exit 1
+    fi
+  fi
+  info "Installing the Spec Kit skills in $SPEC_KIT_PROJECT_FOLDER..."
+  if ! specify_output="$(cd "$SPEC_KIT_PROJECT_FOLDER" && uvx --from "$SPEC_KIT_SOURCE" specify init --here --force --non-interactive \
+       --integration copilot --integration-options="--skills" --script sh --ignore-agent-tools 2>&1)"; then
+    printf '%s\n' "$specify_output"
+    error_message "specify init failed. Check your internet connection (or HTTPS_PROXY behind a proxy) and run ./setup.sh again."
+    exit 1
+  fi
+  ok "The Spec Kit skills are in $SPEC_KIT_PROJECT_FOLDER/.github/skills."
+fi
+
+# --- 4. One repository per project --------------------------------------------------
+step "4/6 One repository per project"
 commit_identity=()
 if [ -z "$(git config --get user.name || true)" ] || [ -z "$(git config --get user.email || true)" ]; then
   info "git has no name and email set up, so the first commits use \"$FALLBACK_AUTHOR_NAME\"."
@@ -194,8 +229,8 @@ for project_folder in "${PROJECT_FOLDERS[@]}"; do
   fi
 done
 
-# --- 4. Bun ------------------------------------------------------------------
-step "4/5 Bun"
+# --- 5. Bun ------------------------------------------------------------------
+step "5/6 Bun"
 # The PATH this terminal started with, to tell whether a new terminal finds Bun too.
 ORIGINAL_PATH="$PATH"
 BUN_INSTALL_ROOT="${BUN_INSTALL:-$HOME/.bun}"
@@ -244,8 +279,8 @@ if [[ "$BUN_RELEASE_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] && version_is_older 
   warn "Bun $RECOMMENDED_BUN_VERSION or newer is recommended. Update it with:  bun upgrade"
 fi
 
-# --- 5. Dependencies -------------------------------------------------------------
-step "5/5 Dependencies"
+# --- 6. Dependencies -------------------------------------------------------------
+step "6/6 Dependencies"
 for project_folder in "${PROJECT_FOLDERS[@]}"; do
   info "Running bun install in $project_folder..."
   if ! (cd "$project_folder" && bun install); then

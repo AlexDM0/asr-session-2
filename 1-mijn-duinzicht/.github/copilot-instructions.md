@@ -56,7 +56,7 @@ API over SQLite, in one Bun workspace. The binding rules are the
 | `packages/` | `api-contract`, `record-reader`, `dutch-format`, `claim-report-rules`, `profile-detail-rules` |
 | `specs/` | Spec Kit feature folders `NNN-short-name/` |
 | `.specify/` | Constitution, templates and the bash and PowerShell scripts |
-| `.github/skills/` | The `speckit-*` skills, `analyze-codebase` and `grill-me` |
+| `.github/skills/` | `analyze-codebase`, `grill-me` and `retro`; Spec Kit installs its `speckit-*` skills here |
 | `docs/` | Reference pages for people and agents |
 
 ## Where to look

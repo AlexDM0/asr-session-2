@@ -105,12 +105,13 @@ Linux, `powershell/` for Windows. Each skill says which one to run on which syst
 the right one. If Windows blocks a script because of the execution policy, run it as
 `powershell -NoProfile -ExecutionPolicy Bypass -File <script> <arguments>`.
 
-## Two more skills
+## Three more skills
 
 | Skill | Use it to |
 |---|---|
 | `/analyze-codebase` | Get to know the code: builds an interactive guide in `docs/codebase-guide/` (local only, gitignored) with an overview and a deeper tour |
 | `/grill-me` | Sharpen a feature request before `/speckit-specify`: Copilot interviews you one question at a time until every decision is made |
+| `/retro` | Look back at the work so far: Copilot proposes a few rules for the constitution or the instructions, and applies only the ones you approve |
 
 ## Docs
 

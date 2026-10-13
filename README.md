@@ -2,7 +2,8 @@
 
 Two projects in one repository. Run the setup in this folder first: it removes this folder's `.git`
 and makes each project folder its own git repository, so the agent stays inside its project. Then
-it installs Bun when it is missing and the dependencies of both projects.
+it installs the Spec Kit skills in `1-mijn-duinzicht/` (through uv, which it offers to install), Bun
+when it is missing, and the dependencies of both projects.
 
 | On | Do |
 |---|---|

@@ -6,10 +6,11 @@
 .DESCRIPTION
   1. Checks that git works and that this folder is not inside another git repository
   2. Removes the .git of this folder, after asking: the clone's history goes, every file stays
-  3. git init and a first commit in 1-mijn-duinzicht\ and 2-duinzicht-products-mcp\
-  4. Bun: checks that it works, offers to install it when it is missing
+  3. Spec Kit: installs its speckit-* skills in 1-mijn-duinzicht\ with specify init, through uv
+  4. git init and a first commit in 1-mijn-duinzicht\ and 2-duinzicht-products-mcp\
+  5. Bun: checks that it works, offers to install it when it is missing
      (winget when it is available, otherwise the official installer)
-  5. bun install in 1-mijn-duinzicht\ and 2-duinzicht-products-mcp\
+  6. bun install in 1-mijn-duinzicht\ and 2-duinzicht-products-mcp\
 
   One repository per project keeps the agent inside the project: Copilot CLI and worktree sessions
   work from the git root. Safe to run again: every step checks before it changes anything. Works in
@@ -32,6 +33,8 @@ $script:FirstCommitMessage = 'Starter'
 $script:FallbackAuthorName = 'Duinzicht workshop'
 $script:FallbackAuthorEmail = 'workshop@duinzicht.example'
 $script:RecommendedBunVersion = '1.4.2'
+$script:SpecKitProjectFolder = '1-mijn-duinzicht'
+$script:SpecKitSource = 'git+https://github.com/github/spec-kit.git@v1.1.3'
 
 # Windows PowerShell 5.1 can still default to TLS 1.0, which bun.sh and GitHub refuse.
 $script:ForceTls12Command = '[Net.ServicePointManager]::SecurityProtocol = [Net.ServicePointManager]::SecurityProtocol -bor [Net.SecurityProtocolType]::Tls12'
@@ -129,6 +132,61 @@ function Install-Bun {
     return ($installerExitedCleanly -and (Test-Path (Join-Path (Get-BunBinDirectory) 'bun.exe')))
 }
 
+function Get-UvBinDirectory {
+    return (Join-Path (Join-Path $HOME '.local') 'bin')
+}
+
+function Install-Uv {
+    if (Test-CommandExists 'winget') {
+        Write-Info 'Installing uv with winget (winget install --id astral-sh.uv --exact)...'
+        $global:LASTEXITCODE = 1
+        & winget install --id astral-sh.uv --exact
+        if ($LASTEXITCODE -eq 0) { return $true }
+        Write-Warn "winget did not finish (exit code $LASTEXITCODE). Trying the official installer instead."
+    }
+    Write-Info 'Installing uv with the official installer (irm https://astral.sh/uv/install.ps1 | iex)...'
+    return (Invoke-OfficialInstaller 'https://astral.sh/uv/install.ps1')
+}
+
+# Before the first commit, so the skills are part of it. specify init keeps the starter's own
+# constitution, templates and scripts; it only adds the skills and its own metadata.
+function Install-SpecKitSkills {
+    if (Test-Path -Path (Join-Path $script:SpecKitProjectFolder '.github\skills\speckit-specify')) {
+        Write-Ok "The Spec Kit skills are already in $script:SpecKitProjectFolder."
+        return $true
+    }
+    # A uv installed in another window is only on this window's PATH after a reopen.
+    $env:PATH = (Get-UvBinDirectory) + [IO.Path]::PathSeparator + $env:PATH
+    if (-not (Test-CommandExists 'uvx')) {
+        Write-ErrorMessage 'uv was not found. Spec Kit installs through uv.'
+        if (Confirm-Offer 'Install uv now?') {
+            [void](Install-Uv)
+            Update-SessionPath
+            $env:PATH = (Get-UvBinDirectory) + [IO.Path]::PathSeparator + $env:PATH
+        }
+        if (-not (Test-CommandExists 'uvx')) {
+            Write-ErrorMessage 'uv is required for Spec Kit. Install it from https://docs.astral.sh/uv/ and run setup again.'
+            return $false
+        }
+    }
+    Write-Info "Installing the Spec Kit skills in $script:SpecKitProjectFolder..."
+    Push-Location -Path $script:SpecKitProjectFolder
+    try {
+        $global:LASTEXITCODE = 1
+        $specifyOutput = & uvx --from $script:SpecKitSource specify init --here --force --non-interactive --integration copilot '--integration-options=--skills' --script ps --ignore-agent-tools 2>&1 | Out-String
+        $specifySucceeded = ($LASTEXITCODE -eq 0)
+    } finally {
+        Pop-Location
+    }
+    if (-not $specifySucceeded) {
+        Write-Host $specifyOutput
+        Write-ErrorMessage 'specify init failed. Check your internet connection (or HTTPS_PROXY behind a proxy) and run setup again.'
+        return $false
+    }
+    Write-Ok "The Spec Kit skills are in $script:SpecKitProjectFolder\.github\skills."
+    return $true
+}
+
 # Returns the version bun reports, or $null when bun does not run.
 function Get-BunVersion {
     try {
@@ -146,7 +204,7 @@ function Invoke-Setup {
     Write-Bold 'Splitting the session 2 repository into one repository per project'
 
     # --- 1. Checks -----------------------------------------------------------
-    Write-Step '1/5 Checks'
+    Write-Step '1/6 Checks'
     if (-not (Get-Command 'git' -ErrorAction SilentlyContinue)) {
         Write-ErrorMessage 'git was not found. Install it from https://git-scm.com and run setup again.'
         $script:SetupExitCode = 1; return
@@ -171,7 +229,7 @@ function Invoke-Setup {
     Write-Ok 'This folder is not inside another git repository.'
 
     # --- 2. Remove the repository of this folder -------------------------------
-    Write-Step '2/5 Remove the repository of this folder'
+    Write-Step '2/6 Remove the repository of this folder'
     $repositoryPath = Join-Path (Get-Location).Path '.git'
     if (Test-Path -Path $repositoryPath) {
         Write-Info 'Every project gets its own repository, so the agent stays inside its project folder.'
@@ -191,8 +249,14 @@ function Invoke-Setup {
         Write-Ok 'This folder is no repository any more.'
     }
 
-    # --- 3. One repository per project -----------------------------------------
-    Write-Step '3/5 One repository per project'
+    # --- 3. Spec Kit ----------------------------------------------------------
+    Write-Step '3/6 Spec Kit'
+    if (-not (Install-SpecKitSkills)) {
+        $script:SetupExitCode = 1; return
+    }
+
+    # --- 4. One repository per project -----------------------------------------
+    Write-Step '4/6 One repository per project'
     $commitIdentity = @()
     if (-not (Get-GitValue 'user.name') -or -not (Get-GitValue 'user.email')) {
         Write-Info "git has no name and email set up, so the first commits use `"$script:FallbackAuthorName`"."
@@ -217,8 +281,8 @@ function Invoke-Setup {
         Write-Ok "$projectFolder is its own repository, with a first commit on main."
     }
 
-    # --- 4. Bun --------------------------------------------------------------
-    Write-Step '4/5 Bun'
+    # --- 5. Bun --------------------------------------------------------------
+    Write-Step '5/6 Bun'
     $bunBinDirectory = Get-BunBinDirectory
     # A Bun installed in another window is only on this window's PATH after a reopen.
     if (Test-Path $bunBinDirectory) { $env:PATH = $bunBinDirectory + [IO.Path]::PathSeparator + $env:PATH }
@@ -262,8 +326,8 @@ function Invoke-Setup {
         Write-Warn "Bun $script:RecommendedBunVersion or newer is recommended. Update it with:  bun upgrade"
     }
 
-    # --- 5. Dependencies -----------------------------------------------------
-    Write-Step '5/5 Dependencies'
+    # --- 6. Dependencies -----------------------------------------------------
+    Write-Step '6/6 Dependencies'
     foreach ($projectFolder in $script:ProjectFolders) {
         Write-Info "Running bun install in $projectFolder..."
         $global:LASTEXITCODE = 1
