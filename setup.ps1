@@ -4,7 +4,8 @@
   install what each project needs, on Windows. Runs unattended.
 
 .DESCRIPTION
-  1. Checks that git works and that this folder is not inside another git repository
+  1. Checks that git works and that this folder is not inside another git repository, and stops
+     running Node.js processes that would hold project files open
   2. Removes the .git of this folder when it holds no work that exists nowhere else
   3. Python 3.13 as the default python, and Spec Kit's specify CLI on it, both through uv; then the
      speckit-* skills in 1-mijn-duinzicht\ with specify init
@@ -133,6 +134,25 @@ function Remove-RootRepository($repositoryPath) {
 
 function Test-CommandExists($name) {
     return [bool](Get-Command $name -ErrorAction SilentlyContinue)
+}
+
+# A dev server or test runner left running in another window holds files in the project folders
+# open, so removing .git and bun install fail. Stops every node.exe this account may stop, if any.
+function Stop-NodeProcesses {
+    $nodeProcesses = @(Get-Process -Name 'node' -ErrorAction SilentlyContinue)
+    if ($nodeProcesses.Count -eq 0) {
+        Write-Ok 'No Node.js processes are running.'
+        return
+    }
+    Write-Info "Stopping $($nodeProcesses.Count) Node.js process(es), so they release the project files..."
+    $nodeProcesses | Stop-Process -Force -ErrorAction SilentlyContinue
+    Start-Sleep -Seconds 1
+    $remainingProcesses = @(Get-Process -Name 'node' -ErrorAction SilentlyContinue)
+    if ($remainingProcesses.Count -gt 0) {
+        Write-Warn "$($remainingProcesses.Count) Node.js process(es) could not be stopped; close those windows yourself if setup fails."
+    } else {
+        Write-Ok 'Stopped the running Node.js processes.'
+    }
 }
 
 function Show-BunInstallHelp {
@@ -482,6 +502,7 @@ function Invoke-Setup($rootFolder) {
     }
     Write-Ok 'This folder is not inside another git repository.'
     Show-FolderLocationWarnings $rootFolder
+    Stop-NodeProcesses
 
     # --- 2. Remove the repository of this folder -------------------------------
     Write-Step '2/6 Remove the repository of this folder'
