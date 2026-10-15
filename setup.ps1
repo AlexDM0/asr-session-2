@@ -6,7 +6,8 @@
 .DESCRIPTION
   1. Checks that git works and that this folder is not inside another git repository
   2. Removes the .git of this folder when it holds no work that exists nowhere else
-  3. Spec Kit: installs its speckit-* skills in 1-mijn-duinzicht\ with specify init, through uv
+  3. Python 3.13 as the default python, and Spec Kit's specify CLI on it, both through uv; then the
+     speckit-* skills in 1-mijn-duinzicht\ with specify init
   4. git init and a first commit in 1-mijn-duinzicht\ and 2-duinzicht-products-mcp\
   5. Bun: checks that it works, installs a pinned Bun release from GitHub when it is missing
   6. bun install in 1-mijn-duinzicht\ and 2-duinzicht-products-mcp\
@@ -36,6 +37,9 @@ $script:SpecKitProjectFolder = '1-mijn-duinzicht'
 # The tag archive instead of git+https: uv downloads it itself, so neither git nor git's proxy and
 # certificate settings are needed.
 $script:SpecKitSource = 'https://github.com/github/spec-kit/archive/refs/tags/v1.1.3.zip'
+# specify-cli runs on this Python, not on whatever uv finds first: its dependencies, PyYAML among
+# them, have wheels for it, so nothing has to be built from source.
+$script:PythonVersion = '3.13'
 # Pinned uv and Bun releases, checked against their published SHA-256, instead of piping installer
 # scripts into iex: deterministic, and not the download pattern endpoint security software blocks.
 $script:UvVersion = '0.11.29'
@@ -355,25 +359,63 @@ function Test-VersionIsOlder($currentVersion, $minimumVersion) {
     return $false
 }
 
-# Before the first commit, so the skills are part of it. specify init --force keeps the starter's
-# constitution and rewrites the templates and scripts in .specify with Spec Kit's own; it adds the
-# skills and its metadata. Until that first commit exists it runs every time, so an interrupted run
-# never leaves half the skills behind.
-function Install-SpecKitSkills {
-    if (Test-HasFirstCommit $script:SpecKitProjectFolder) {
-        Write-Ok "The Spec Kit skills are already part of the first commit of $script:SpecKitProjectFolder."
-        return $true
+# Installs the pinned Python with uv and makes it the python and python3 every new window finds.
+# Older uv releases only know --default as a preview feature. Returns whether that worked.
+function Install-DefaultPython {
+    Write-Info "Installing Python $script:PythonVersion as the default python. The first time this can take a few minutes..."
+    $global:LASTEXITCODE = 1
+    & uv python install $script:PythonVersion --default | Out-Host
+    if ($LASTEXITCODE -ne 0) {
+        $global:LASTEXITCODE = 1
+        & uv python install $script:PythonVersion --default --preview | Out-Host
     }
+    if ($LASTEXITCODE -ne 0) {
+        Write-ErrorMessage "Installing Python $script:PythonVersion failed. Check your internet connection (or HTTPS_PROXY behind a proxy) and run setup again."
+        return $false
+    }
+    $pythonBinDirectory = if ($env:UV_PYTHON_BIN_DIR) { $env:UV_PYTHON_BIN_DIR } else { Get-UvBinDirectory }
+    if ($script:IsFullLanguage) { Add-UserPathEntry $pythonBinDirectory }
+    Write-Ok "Python $script:PythonVersion is installed; new windows find it as python."
+    return $true
+}
+
+# Installs specify-cli as a uv tool on the pinned Python, so specify keeps working after setup.
+# --force replaces a specify.exe from an earlier install. Returns the path of specify.exe, or $null.
+function Install-SpecifyCli {
+    Write-Info "Installing specify-cli on Python $script:PythonVersion..."
+    $global:LASTEXITCODE = 1
+    & uv tool install --force --python $script:PythonVersion --from $script:SpecKitSource specify-cli | Out-Host
+    if ($LASTEXITCODE -ne 0) {
+        Write-ErrorMessage 'Installing specify-cli failed. Check your internet connection (or HTTPS_PROXY behind a proxy) and run setup again.'
+        return $null
+    }
+    $toolBinDirectory = (& uv tool dir --bin 2>$null | Out-String).Trim()
+    if (-not $toolBinDirectory) { $toolBinDirectory = Get-UvBinDirectory }
+    if ($script:IsFullLanguage) { Add-UserPathEntry $toolBinDirectory }
+    $specifyPath = Join-Path $toolBinDirectory 'specify.exe'
+    if (-not (Test-Path -LiteralPath $specifyPath)) {
+        Write-ErrorMessage "specify-cli is installed, but $specifyPath is missing."
+        return $null
+    }
+    Write-Ok "specify-cli runs on Python $script:PythonVersion."
+    return $specifyPath
+}
+
+# Python and specify-cli on every run. The skills before the first commit, so they are part of it.
+# specify init --force keeps the starter's constitution and rewrites the templates and scripts in
+# .specify with Spec Kit's own; it adds the skills and its metadata. Until that first commit exists
+# it runs every time, so an interrupted run never leaves half the skills behind.
+function Install-SpecKitSkills {
     # A uv installed in another window is only on this window's PATH after a reopen.
     $env:PATH = (Get-UvBinDirectory) + ';' + $env:PATH
-    if (-not (Test-CommandExists 'uvx')) {
+    if (-not (Test-CommandExists 'uv')) {
         if (-not $script:IsFullLanguage) {
             Show-LockedDownHelp 'uv'
             return $false
         }
-        Write-Info 'uv was not found; Spec Kit installs through it. Installing uv...'
+        Write-Info 'uv was not found; Python and Spec Kit install through it. Installing uv...'
         if (-not (Install-PinnedUv)) {
-            Write-ErrorMessage 'uv is required for Spec Kit. Install it from https://docs.astral.sh/uv/ and run setup again.'
+            Write-ErrorMessage 'uv is required for Python and Spec Kit. Install it from https://docs.astral.sh/uv/ and run setup again.'
             return $false
         }
         Update-SessionPath
@@ -384,11 +426,18 @@ function Install-SpecKitSkills {
         $uvToolHelp = (& uv tool install --help 2>$null | Out-String)
         if ($uvToolHelp -match '--system-certs') { $env:UV_SYSTEM_CERTS = '1' } else { $env:UV_NATIVE_TLS = '1' }
     }
-    Write-Info "Installing the Spec Kit skills in $script:SpecKitProjectFolder. The first time this can take a few minutes..."
+    if (-not (Install-DefaultPython)) { return $false }
+    $specifyPath = Install-SpecifyCli
+    if (-not $specifyPath) { return $false }
+    if (Test-HasFirstCommit $script:SpecKitProjectFolder) {
+        Write-Ok "The Spec Kit skills are already part of the first commit of $script:SpecKitProjectFolder."
+        return $true
+    }
+    Write-Info "Installing the Spec Kit skills in $script:SpecKitProjectFolder..."
     Push-Location -LiteralPath $script:SpecKitProjectFolder
     try {
         $global:LASTEXITCODE = 1
-        & uvx --from $script:SpecKitSource specify init --here --force --non-interactive --integration copilot '--integration-options=--skills' --script ps --ignore-agent-tools | Out-Host
+        & $specifyPath init --here --force --non-interactive --integration copilot '--integration-options=--skills' --script ps --ignore-agent-tools | Out-Host
         $specifySucceeded = ($LASTEXITCODE -eq 0)
     } finally {
         Pop-Location
@@ -456,7 +505,7 @@ function Invoke-Setup($rootFolder) {
     }
 
     # --- 3. Spec Kit ----------------------------------------------------------
-    Write-Step '3/6 Spec Kit'
+    Write-Step '3/6 Python and Spec Kit'
     if (-not (Install-SpecKitSkills)) {
         $script:SetupExitCode = 1; return
     }

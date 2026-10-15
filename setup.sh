@@ -5,7 +5,8 @@
 #
 #   1. Checks that git works and that this folder is not inside another git repository
 #   2. Removes the .git of this folder when it holds no work that exists nowhere else
-#   3. Spec Kit: installs its speckit-* skills in 1-mijn-duinzicht/ with specify init, through uv
+#   3. Python 3.13 as the default python, and Spec Kit's specify CLI on it, both through uv; then the
+#      speckit-* skills in 1-mijn-duinzicht/ with specify init
 #   4. git init and a first commit in 1-mijn-duinzicht/ and 2-duinzicht-products-mcp/
 #   5. Bun: checks that it works, installs it with the official installer when it is missing
 #   6. bun install in 1-mijn-duinzicht/ and 2-duinzicht-products-mcp/
@@ -34,6 +35,9 @@ SPEC_KIT_PROJECT_FOLDER="1-mijn-duinzicht"
 # The tag archive instead of git+https: uv downloads it itself, so neither git nor git's proxy and
 # certificate settings are needed.
 SPEC_KIT_SOURCE="https://github.com/github/spec-kit/archive/refs/tags/v1.1.3.zip"
+# specify-cli runs on this Python, not on whatever uv finds first: its dependencies, PyYAML among
+# them, have wheels for it, so nothing has to be built from source.
+PYTHON_VERSION="3.13"
 FIRST_COMMIT_MESSAGE="Starter"
 FALLBACK_AUTHOR_NAME="Duinzicht workshop"
 FALLBACK_AUTHOR_EMAIL="workshop@duinzicht.example"
@@ -229,39 +233,69 @@ else
   ok "This folder is no repository any more."
 fi
 
-# --- 3. Spec Kit ---------------------------------------------------------------
-# Before the first commit, so the skills are part of it. specify init --force keeps the starter's
-# constitution and rewrites the templates and scripts in .specify with Spec Kit's own; it adds the
-# skills and its metadata. Until that first commit exists it runs every time, so an interrupted run
-# never leaves half the skills behind.
-step "3/6 Spec Kit"
+# --- 3. Python and Spec Kit ------------------------------------------------------
+# Python and specify-cli on every run. The skills before the first commit, so they are part of it.
+# specify init --force keeps the starter's constitution and rewrites the templates and scripts in
+# .specify with Spec Kit's own; it adds the skills and its metadata. Until that first commit exists
+# it runs every time, so an interrupted run never leaves half the skills behind.
+step "3/6 Python and Spec Kit"
+# The PATH this terminal started with, to tell whether a new terminal finds python and specify too.
+PATH_BEFORE_UV="$PATH"
+UV_BIN_DIRECTORY="${UV_INSTALL_DIR:-${XDG_BIN_HOME:-$HOME/.local/bin}}"
+# A uv installed in another terminal is only on this terminal's PATH after a restart.
+if [ -d "$UV_BIN_DIRECTORY" ]; then export PATH="$UV_BIN_DIRECTORY:$PATH"; fi
+if ! command -v uv >/dev/null 2>&1; then
+  info "uv was not found; Python and Spec Kit install through it. Installing uv with the official installer (https://astral.sh/uv/install.sh)..."
+  if run_official_installer https://astral.sh/uv/install.sh sh; then
+    export PATH="$UV_BIN_DIRECTORY:$PATH"
+  fi
+  if ! command -v uv >/dev/null 2>&1; then
+    error_message "uv is required for Python and Spec Kit. Install it from https://docs.astral.sh/uv/ and run ./setup.sh again."
+    exit 1
+  fi
+fi
+# A TLS-inspecting proxy re-signs traffic with a company certificate that only the system store
+# trusts; uv's own certificate bundle would reject it.
+if [ -z "${UV_SYSTEM_CERTS:-}${UV_NATIVE_TLS:-}" ]; then
+  if uv tool install --help 2>/dev/null | grep -q -- '--system-certs'; then
+    export UV_SYSTEM_CERTS=1
+  else
+    export UV_NATIVE_TLS=1
+  fi
+fi
+
+# Older uv releases only know --default as a preview feature.
+info "Installing Python $PYTHON_VERSION as the default python. The first time this can take a few minutes..."
+if ! uv python install "$PYTHON_VERSION" --default && ! uv python install "$PYTHON_VERSION" --default --preview; then
+  error_message "Installing Python $PYTHON_VERSION failed. Check your internet connection (or HTTPS_PROXY behind a proxy) and run ./setup.sh again."
+  exit 1
+fi
+ok "Python $PYTHON_VERSION is installed."
+
+# A uv tool, so specify keeps working after setup. --force replaces a specify from an earlier install.
+info "Installing specify-cli on Python $PYTHON_VERSION..."
+if ! uv tool install --force --python "$PYTHON_VERSION" --from "$SPEC_KIT_SOURCE" specify-cli; then
+  error_message "Installing specify-cli failed. Check your internet connection (or HTTPS_PROXY behind a proxy) and run ./setup.sh again."
+  exit 1
+fi
+UV_TOOL_BIN_DIRECTORY="$(uv tool dir --bin 2>/dev/null || echo "$UV_BIN_DIRECTORY")"
+SPECIFY_PATH="$UV_TOOL_BIN_DIRECTORY/specify"
+if [ ! -x "$SPECIFY_PATH" ]; then
+  error_message "specify-cli is installed, but $SPECIFY_PATH is missing."
+  exit 1
+fi
+ok "specify-cli runs on Python $PYTHON_VERSION."
+# uv's own installer adds its folder to the shell startup file; a uv from Homebrew or pip does not.
+if ! path_list_contains "$UV_TOOL_BIN_DIRECTORY" "$PATH_BEFORE_UV"; then
+  PATH="$PATH_BEFORE_UV" "$(command -v uv)" tool update-shell || \
+    warn "Add $UV_TOOL_BIN_DIRECTORY to your PATH yourself, so new terminals find python and specify."
+fi
+
 if has_first_commit "$SPEC_KIT_PROJECT_FOLDER"; then
   ok "The Spec Kit skills are already part of the first commit of $SPEC_KIT_PROJECT_FOLDER."
 else
-  UV_BIN_DIRECTORY="${UV_INSTALL_DIR:-${XDG_BIN_HOME:-$HOME/.local/bin}}"
-  # A uv installed in another terminal is only on this terminal's PATH after a restart.
-  if [ -d "$UV_BIN_DIRECTORY" ]; then export PATH="$UV_BIN_DIRECTORY:$PATH"; fi
-  if ! command -v uvx >/dev/null 2>&1; then
-    info "uv was not found; Spec Kit installs through it. Installing uv with the official installer (https://astral.sh/uv/install.sh)..."
-    if run_official_installer https://astral.sh/uv/install.sh sh; then
-      export PATH="$UV_BIN_DIRECTORY:$PATH"
-    fi
-    if ! command -v uvx >/dev/null 2>&1; then
-      error_message "uv is required for Spec Kit. Install it from https://docs.astral.sh/uv/ and run ./setup.sh again."
-      exit 1
-    fi
-  fi
-  # A TLS-inspecting proxy re-signs traffic with a company certificate that only the system store
-  # trusts; uv's own certificate bundle would reject it.
-  if [ -z "${UV_SYSTEM_CERTS:-}${UV_NATIVE_TLS:-}" ]; then
-    if uv tool install --help 2>/dev/null | grep -q -- '--system-certs'; then
-      export UV_SYSTEM_CERTS=1
-    else
-      export UV_NATIVE_TLS=1
-    fi
-  fi
-  info "Installing the Spec Kit skills in $SPEC_KIT_PROJECT_FOLDER. The first time this can take a few minutes..."
-  if ! (cd "$SPEC_KIT_PROJECT_FOLDER" && uvx --from "$SPEC_KIT_SOURCE" specify init --here --force --non-interactive \
+  info "Installing the Spec Kit skills in $SPEC_KIT_PROJECT_FOLDER..."
+  if ! (cd "$SPEC_KIT_PROJECT_FOLDER" && "$SPECIFY_PATH" init --here --force --non-interactive \
        --integration copilot --integration-options="--skills" --script sh --ignore-agent-tools); then
     error_message "specify init failed. Check your internet connection (or HTTPS_PROXY behind a proxy) and run ./setup.sh again."
     exit 1

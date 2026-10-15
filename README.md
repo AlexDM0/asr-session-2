@@ -2,8 +2,9 @@
 
 Two projects in one repository. Run the setup in this folder first: it removes this folder's `.git`
 and makes each project folder its own git repository, so the agent stays inside its project. Then
-it installs the Spec Kit skills in `1-mijn-duinzicht/` (through uv, which it installs when it is missing), Bun
-when it is missing, and the dependencies of both projects.
+it installs Python 3.13 as the default `python` and the Spec Kit CLI `specify` on it (both through uv,
+which it installs when it is missing), the Spec Kit skills in `1-mijn-duinzicht/`, Bun when it is
+missing, and the dependencies of both projects.
 
 | On | Do |
 |---|---|
