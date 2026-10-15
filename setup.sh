@@ -10,6 +10,8 @@
 #   4. git init and a first commit in 1-mijn-duinzicht/ and 2-duinzicht-products-mcp/
 #   5. Bun: checks that it works, installs it with the official installer when it is missing
 #   6. bun install in 1-mijn-duinzicht/ and 2-duinzicht-products-mcp/
+#   7. On macOS a "Start MCP server" file on the desktop that runs start-mcp.sh: it starts the MCP
+#      server of 2-duinzicht-products-mcp/ and adds .mcp.json to 1-mijn-duinzicht/
 #
 # One repository per project keeps the agent inside the project: Copilot CLI and worktree sessions
 # work from the git root. Safe to run again: every step checks before it changes anything. On Git
@@ -187,7 +189,7 @@ version_is_older() {
 bold "Splitting the session 2 repository into one repository per project ($PLATFORM)"
 
 # --- 1. Checks ---------------------------------------------------------------
-step "1/6 Checks"
+step "1/7 Checks"
 # On a Mac without the developer tools, /usr/bin/git exists but only offers to install them.
 if ! command -v git >/dev/null 2>&1 || ! git_version="$(git --version 2>/dev/null)"; then
   error_message "git does not work yet. Install it from https://git-scm.com (on a Mac: xcode-select --install) and run ./setup.sh again."
@@ -214,7 +216,7 @@ fi
 ok "This folder is not inside another git repository."
 
 # --- 2. Remove the repository of this folder -----------------------------------
-step "2/6 Remove the repository of this folder"
+step "2/7 Remove the repository of this folder"
 if [ -e ".git" ]; then
   work_only_in_this_clone="$(describe_work_only_in_this_clone)"
   if [ -n "$work_only_in_this_clone" ]; then
@@ -264,7 +266,7 @@ apply_skill_overrides() {
 # specify init --force keeps the starter's constitution and rewrites the templates and scripts in
 # .specify with Spec Kit's own; it adds the skills and its metadata. Until that first commit exists
 # it runs every time, so an interrupted run never leaves half the skills behind.
-step "3/6 Python and Spec Kit"
+step "3/7 Python and Spec Kit"
 # The PATH this terminal started with, to tell whether a new terminal finds python and specify too.
 PATH_BEFORE_UV="$PATH"
 UV_BIN_DIRECTORY="${UV_INSTALL_DIR:-${XDG_BIN_HOME:-$HOME/.local/bin}}"
@@ -331,7 +333,7 @@ else
 fi
 
 # --- 4. One repository per project --------------------------------------------------
-step "4/6 One repository per project"
+step "4/7 One repository per project"
 uses_fallback_identity=0
 if [ -z "$(git config --get user.name || true)" ] || [ -z "$(git config --get user.email || true)" ]; then
   uses_fallback_identity=1
@@ -362,7 +364,7 @@ for project_folder in "${PROJECT_FOLDERS[@]}"; do
 done
 
 # --- 5. Bun ------------------------------------------------------------------
-step "5/6 Bun"
+step "5/7 Bun"
 # The PATH this terminal started with, to tell whether a new terminal finds Bun too.
 ORIGINAL_PATH="$PATH"
 BUN_INSTALL_ROOT="${BUN_INSTALL:-$HOME/.bun}"
@@ -401,7 +403,7 @@ if [[ "$BUN_RELEASE_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] && version_is_older 
 fi
 
 # --- 6. Dependencies -------------------------------------------------------------
-step "6/6 Dependencies"
+step "6/7 Dependencies"
 export_system_certificates_for_bun
 for project_folder in "${PROJECT_FOLDERS[@]}"; do
   info "Running bun install in $project_folder..."
@@ -411,6 +413,21 @@ for project_folder in "${PROJECT_FOLDERS[@]}"; do
   fi
 done
 ok "Every project is installed."
+
+# --- 7. MCP server shortcut --------------------------------------------------------
+# Finder opens a .command file in Terminal on a double-click. It holds the absolute path, so it
+# keeps working wherever this folder is. Other systems start ./start-mcp.sh themselves.
+step "7/7 MCP server shortcut"
+MCP_SHORTCUT_PATH="$HOME/Desktop/Start MCP server.command"
+if [ "$PLATFORM" != "macos" ]; then
+  info "Start the MCP server with ./start-mcp.sh in this folder."
+elif [ -f "$MCP_SHORTCUT_PATH" ] && grep -qF "$SCRIPT_DIRECTORY/start-mcp.sh" "$MCP_SHORTCUT_PATH"; then
+  ok "\"Start MCP server\" is already on the desktop."
+elif printf '#!/bin/bash\nexec bash "%s/start-mcp.sh"\n' "$SCRIPT_DIRECTORY" > "$MCP_SHORTCUT_PATH" 2>/dev/null && chmod +x "$MCP_SHORTCUT_PATH"; then
+  ok "Added \"Start MCP server\" to the desktop."
+else
+  warn "Could not add \"Start MCP server\" to the desktop. Start the server with ./start-mcp.sh in this folder."
+fi
 
 echo
 info "Next: open the 1-mijn-duinzicht folder in VS Code and start the portal there with:  bun run dev"

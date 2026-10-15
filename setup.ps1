@@ -12,6 +12,8 @@
   4. git init and a first commit in 1-mijn-duinzicht\ and 2-duinzicht-products-mcp\
   5. Bun: checks that it works, installs a pinned Bun release from GitHub when it is missing
   6. bun install in 1-mijn-duinzicht\ and 2-duinzicht-products-mcp\
+  7. A "Start MCP server" shortcut on the desktop that runs start-mcp.cmd: it starts the MCP server
+     of 2-duinzicht-products-mcp\ and adds .mcp.json to 1-mijn-duinzicht\
 
   One repository per project keeps the agent inside the project: Copilot CLI and worktree sessions
   work from the git root. Safe to run again: every step checks before it changes anything. Works in
@@ -56,6 +58,7 @@ $script:BunArchiveChecksums = @{
 # AppLocker and WDAC run scripts from a user folder in ConstrainedLanguage, where .NET calls fail.
 $script:IsFullLanguage = ($ExecutionContext.SessionState.LanguageMode -eq 'FullLanguage')
 $script:SystemProxy = $null
+$script:McpShortcutName = 'Start MCP server'
 # The PATH this window started with, before this script added anything to it.
 $script:StartingPath = $env:PATH
 $script:SetupExitCode = 0
@@ -152,6 +155,35 @@ function Stop-NodeProcesses {
         Write-Warn "$($remainingProcesses.Count) Node.js process(es) could not be stopped; close those windows yourself if setup fails."
     } else {
         Write-Ok 'Stopped the running Node.js processes.'
+    }
+}
+
+# A double-click on the shortcut starts the MCP server through start-mcp.cmd next to this script.
+# Only creates the shortcut when it is missing. WScript.Shell is COM, which locked-down PowerShell
+# refuses. Returns whether the shortcut is there.
+function Install-McpServerShortcut($rootFolder) {
+    if (-not $script:IsFullLanguage) {
+        Write-Warn "PowerShell runs in a locked-down mode, so setup cannot add the `"$script:McpShortcutName`" shortcut. Double-click start-mcp.cmd in $rootFolder instead."
+        return $false
+    }
+    try {
+        $desktopFolder = [Environment]::GetFolderPath('Desktop')
+        $shortcutPath = Join-Path $desktopFolder "$script:McpShortcutName.lnk"
+        if (Test-Path -LiteralPath $shortcutPath) {
+            Write-Ok "The `"$script:McpShortcutName`" shortcut is already on the desktop."
+            return $true
+        }
+        $shell = New-Object -ComObject WScript.Shell
+        $shortcut = $shell.CreateShortcut($shortcutPath)
+        $shortcut.TargetPath = Join-Path $rootFolder 'start-mcp.cmd'
+        $shortcut.WorkingDirectory = $rootFolder
+        $shortcut.Description = 'Starts the Duinzicht products MCP server and connects 1-mijn-duinzicht to it'
+        $shortcut.Save()
+        Write-Ok "Added the `"$script:McpShortcutName`" shortcut to the desktop."
+        return $true
+    } catch {
+        Write-Warn "Could not add the `"$script:McpShortcutName`" shortcut: $($_.Exception.Message). Double-click start-mcp.cmd in $rootFolder instead."
+        return $false
     }
 }
 
@@ -516,7 +548,7 @@ function Invoke-Setup($rootFolder) {
     Initialize-SystemProxy
 
     # --- 1. Checks -----------------------------------------------------------
-    Write-Step '1/6 Checks'
+    Write-Step '1/7 Checks'
     $gitVersion = if (Test-CommandExists 'git') { Get-GitResult @('--version') } else { $null }
     if (-not $gitVersion -or -not $gitVersion.Succeeded) {
         Write-ErrorMessage 'git was not found. Install it from https://git-scm.com and run setup again.'
@@ -546,7 +578,7 @@ function Invoke-Setup($rootFolder) {
     Stop-NodeProcesses
 
     # --- 2. Remove the repository of this folder -------------------------------
-    Write-Step '2/6 Remove the repository of this folder'
+    Write-Step '2/7 Remove the repository of this folder'
     $repositoryPath = Join-Path $rootFolder '.git'
     if (Test-Path -LiteralPath $repositoryPath) {
         $workOnlyInThisClone = Get-WorkOnlyInThisClone
@@ -567,13 +599,13 @@ function Invoke-Setup($rootFolder) {
     }
 
     # --- 3. Spec Kit ----------------------------------------------------------
-    Write-Step '3/6 Python and Spec Kit'
+    Write-Step '3/7 Python and Spec Kit'
     if (-not (Install-SpecKitSkills)) {
         $script:SetupExitCode = 1; return
     }
 
     # --- 4. One repository per project -----------------------------------------
-    Write-Step '4/6 One repository per project'
+    Write-Step '4/7 One repository per project'
     $usesFallbackIdentity = (-not (Get-GitValue 'user.name') -or -not (Get-GitValue 'user.email'))
     if ($usesFallbackIdentity) {
         Write-Info "git has no name and email set up, so the project repositories use `"$script:FallbackAuthorName`"."
@@ -603,7 +635,7 @@ function Invoke-Setup($rootFolder) {
     }
 
     # --- 5. Bun --------------------------------------------------------------
-    Write-Step '5/6 Bun'
+    Write-Step '5/7 Bun'
     $bunBinDirectory = Get-BunBinDirectory
     # A Bun installed in another window is only on this window's PATH after a reopen.
     if (Test-Path -LiteralPath $bunBinDirectory) { $env:PATH = $bunBinDirectory + ';' + $env:PATH }
@@ -642,7 +674,7 @@ function Invoke-Setup($rootFolder) {
     }
 
     # --- 6. Dependencies -----------------------------------------------------
-    Write-Step '6/6 Dependencies'
+    Write-Step '6/7 Dependencies'
     Export-SystemCertificatesForBun
     foreach ($projectFolder in $script:ProjectFolders) {
         Write-Info "Running bun install in $projectFolder..."
@@ -655,6 +687,11 @@ function Invoke-Setup($rootFolder) {
         }
     }
     Write-Ok 'Every project is installed.'
+
+    # --- 7. MCP server shortcut ----------------------------------------------
+    # A missing shortcut does not fail setup: start-mcp.cmd does the same.
+    Write-Step '7/7 MCP server shortcut'
+    Install-McpServerShortcut $rootFolder | Out-Null
 
     Write-Host ''
     Write-Info 'Next: open the 1-mijn-duinzicht folder in VS Code and start the portal there with:  bun run dev'
