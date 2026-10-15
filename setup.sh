@@ -233,6 +233,32 @@ else
   ok "This folder is no repository any more."
 fi
 
+# Puts every project rule in $1/.github/skill-overrides/<skill>.md at the top of that Spec Kit
+# skill, right after its front matter. specify init writes the skills fresh, so this runs after it.
+apply_skill_overrides() {
+  local override_file skill_name skill_file override_heading
+  for override_file in "$1"/.github/skill-overrides/*.md; do
+    [ -f "$override_file" ] || continue
+    skill_name="$(basename "$override_file" .md)"
+    skill_file="$1/.github/skills/$skill_name/SKILL.md"
+    if [ ! -f "$skill_file" ]; then
+      warn "The Spec Kit skill $skill_name is missing, so its project rule is not applied."
+      continue
+    fi
+    override_heading="$(head -n 1 "$override_file")"
+    if grep -qF -- "$override_heading" "$skill_file"; then continue; fi
+    awk -v override_file="$override_file" '
+      { print }
+      /^---[[:space:]]*$/ && ++dashes == 2 {
+        print ""
+        while ((getline line < override_file) > 0) print line
+        close(override_file)
+      }
+    ' "$skill_file" > "$skill_file.tmp" && mv "$skill_file.tmp" "$skill_file"
+    ok "Applied the project rule to the Spec Kit skill $skill_name."
+  done
+}
+
 # --- 3. Python and Spec Kit ------------------------------------------------------
 # Python and specify-cli on every run. The skills before the first commit, so they are part of it.
 # specify init --force keeps the starter's constitution and rewrites the templates and scripts in
@@ -300,6 +326,7 @@ else
     error_message "specify init failed. Check your internet connection (or HTTPS_PROXY behind a proxy) and run ./setup.sh again."
     exit 1
   fi
+  apply_skill_overrides "$SPEC_KIT_PROJECT_FOLDER"
   ok "The Spec Kit skills are in $SPEC_KIT_PROJECT_FOLDER/.github/skills."
 fi
 

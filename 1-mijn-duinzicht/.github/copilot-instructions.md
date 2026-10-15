@@ -13,6 +13,9 @@ API over SQLite, in one Bun workspace. The binding rules are the
 - **Spec Kit first.** Application code, tests, the store structure and the seed change only through
   the Spec Kit flow (`/speckit-specify` to `/speckit-implement`). Write no code without a task in the
   feature's `tasks.md` that covers it.
+- **Specify asks first.** `/speckit-specify` asks clarifying questions before it writes `spec.md`:
+  one at a time, each with a recommended answer, about users, scope, data, edge cases and when the
+  feature is done, until those are clear. Ask, do not guess; skip what the docs or code answer.
 - **Gates.** `bun run typecheck`, `bun run lint` and `bun run test` must all pass with zero errors
   before you check off a task and before every commit. Use only these root scripts; never ad-hoc
   `tsc` flags. Never make a gate pass by editing a tsconfig, the lint config, `package.json` scripts,
@@ -31,11 +34,12 @@ API over SQLite, in one Bun workspace. The binding rules are the
   loading and an `ErrorBanner` with retry on failure.
 - **Design.** Build pages from the components in `apps/web/src/lib/design-system/`. Colours and
   lengths come only from `tokens.css`. Keep the keyboard focus outline and 4.5:1 contrast, and check
-  every changed page at 1280px and 375px wide.
+  a feature's changed pages once, after its last UI task, at 1280px and 375px wide.
 - **Environment.** Read environment variables only in `ApiEnvironment.ts` and `WebEnvironment.ts`.
   No work at module load.
-- **Tests.** A spec sits beside its module as `<Module>.spec.ts(x)`, named as a claim. API
-  end-to-end tests use `startScratchApiServer()`. Tests never touch `.data/`.
+- **Tests.** This workshop writes no new tests: plans and `tasks.md` hold no test tasks. The
+  existing tests keep passing; update one only when the spec changed that behaviour on purpose.
+  Tests never touch `.data/`.
 - **Names.** Full, descriptive names; no abbreviations except the loop index `i` and comparator pair
   `(a, b)`. Comments only for a non-obvious why; no TODO comments.
 - **Data.** All data is fictional. No real customer data, no secrets, tokens or `.env` files in the
@@ -57,6 +61,7 @@ API over SQLite, in one Bun workspace. The binding rules are the
 | `specs/` | Spec Kit feature folders `NNN-short-name/` |
 | `.specify/` | Constitution, templates and the bash and PowerShell scripts |
 | `.github/skills/` | `analyze-codebase`, `grill-me` and `retro`; Spec Kit installs its `speckit-*` skills here |
+| `.github/skill-overrides/` | Project rules that setup puts at the top of a `speckit-*` skill after `specify init` |
 | `docs/` | Reference pages for people and agents |
 
 ## Where to look

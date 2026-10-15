@@ -90,7 +90,7 @@ Type the skill as a slash command, followed by your own text.
 | `/speckit-clarify` | Questions about the gaps in the spec; your answers go into its Clarifications section |
 | `/speckit-plan` | `plan.md` with its Constitution Check, plus `research.md`, `data-model.md`, `contracts/` and `quickstart.md` |
 | `/speckit-tasks` | `tasks.md`, ordered by phase and user story |
-| `/speckit-analyze` | A read-only consistency check across spec, plan and tasks; a CRITICAL finding blocks implementation |
+| `/speckit-analyze` | Optional in this workshop: a read-only consistency check across spec, plan and tasks; a CRITICAL finding blocks implementation |
 | `/speckit-implement` | The code, task by task, each checked off once the gates pass |
 | `/speckit-converge` | What is still missing compared with the spec and plan, appended to `tasks.md` for another implement run |
 

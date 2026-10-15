@@ -421,6 +421,46 @@ function Install-SpecifyCli {
     return $specifyPath
 }
 
+# Puts every project rule in .github\skill-overrides\<skill>.md of $projectFolder at the top of that
+# Spec Kit skill, right after its front matter. specify init writes the skills fresh, so this runs
+# after it. .NET writes UTF-8 without the BOM that Set-Content in 5.1 would put before the front
+# matter. Returns whether every rule is in place.
+function Add-SkillOverrides($projectFolder) {
+    # .NET resolves a relative path against the process folder, not the PowerShell location.
+    $projectFolder = (Resolve-Path -LiteralPath $projectFolder).ProviderPath
+    $overrideFolder = Join-Path (Join-Path $projectFolder '.github') 'skill-overrides'
+    $overrideFiles = @(Get-ChildItem -LiteralPath $overrideFolder -Filter '*.md' -File -ErrorAction SilentlyContinue)
+    if ($overrideFiles.Count -eq 0) { return $true }
+    if (-not $script:IsFullLanguage) {
+        Write-ErrorMessage "PowerShell runs in a locked-down mode, so setup cannot add the project rules in $overrideFolder to the Spec Kit skills."
+        return $false
+    }
+    $utf8WithoutBom = New-Object System.Text.UTF8Encoding($false)
+    foreach ($overrideFile in $overrideFiles) {
+        $skillName = [IO.Path]::GetFileNameWithoutExtension($overrideFile.Name)
+        $skillFile = Join-Path (Join-Path (Join-Path (Join-Path $projectFolder '.github') 'skills') $skillName) 'SKILL.md'
+        if (-not (Test-Path -LiteralPath $skillFile)) {
+            Write-ErrorMessage "The Spec Kit skill $skillName is missing, so its project rule cannot be applied."
+            return $false
+        }
+        $overrideText = [IO.File]::ReadAllText($overrideFile.FullName, $utf8WithoutBom)
+        $skillText = [IO.File]::ReadAllText($skillFile, $utf8WithoutBom)
+        $overrideHeading = ($overrideText -split "`r?`n")[0]
+        if ($skillText.Contains($overrideHeading)) { continue }
+        $frontMatterEnd = [regex]::Match($skillText, '\A---[^\n]*\n.*?\n---[ \t]*\r?\n', [Text.RegularExpressions.RegexOptions]::Singleline)
+        if (-not $frontMatterEnd.Success) {
+            Write-ErrorMessage "The Spec Kit skill $skillName has no front matter, so its project rule cannot be applied."
+            return $false
+        }
+        $newline = if ($skillText.Contains("`r`n")) { "`r`n" } else { "`n" }
+        $overrideBlock = $newline + (($overrideText.TrimEnd() -split "`r?`n") -join $newline) + $newline
+        $insertAt = $frontMatterEnd.Index + $frontMatterEnd.Length
+        [IO.File]::WriteAllText($skillFile, $skillText.Insert($insertAt, $overrideBlock), $utf8WithoutBom)
+        Write-Ok "Applied the project rule to the Spec Kit skill $skillName."
+    }
+    return $true
+}
+
 # Python and specify-cli on every run. The skills before the first commit, so they are part of it.
 # specify init --force keeps the starter's constitution and rewrites the templates and scripts in
 # .specify with Spec Kit's own; it adds the skills and its metadata. Until that first commit exists
@@ -466,6 +506,7 @@ function Install-SpecKitSkills {
         Write-ErrorMessage 'specify init failed. Check your internet connection (or HTTPS_PROXY behind a proxy) and run setup again.'
         return $false
     }
+    if (-not (Add-SkillOverrides $script:SpecKitProjectFolder)) { return $false }
     Write-Ok "The Spec Kit skills are in $script:SpecKitProjectFolder\.github\skills."
     return $true
 }

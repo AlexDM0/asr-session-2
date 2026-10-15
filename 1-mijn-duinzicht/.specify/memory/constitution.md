@@ -12,17 +12,23 @@ names the principles every feature is checked against; the conventions hold the 
 ### I. Spec-Driven Delivery
 
 - Every change to application code, tests, the store structure or the seed MUST go through the Spec
-  Kit flow: specify, clarify, plan, tasks, analyze, implement. Documentation, constitution amendments
+  Kit flow: specify, clarify, plan, tasks, implement. Documentation, constitution amendments
   and repository tooling are exempt.
 - Code MUST NOT be written without a task in the feature's `tasks.md` that covers it.
 - Feature directories MUST be named `specs/NNN-short-name`, numbered in delivery order, with an
   English slug.
+- `/speckit-specify` MUST ask the user before it writes `spec.md`: one question at a time, each
+  with a recommended answer, about who uses the feature, what is in and out of scope, which data it
+  shows or changes, the edge cases and errors, and when the feature is done. It keeps asking until
+  those are clear, usually three to eight questions, and asks nothing the constitution, the docs or
+  the code already answer. Guessing an answer instead of asking is not allowed.
 - An open question that this constitution, the docs and the code do not answer MUST be put to the
   user or marked NEEDS CLARIFICATION in the spec. A marker left in `spec.md` blocks `/speckit-plan`;
   the plan's own markers are resolved in `research.md`. Every answer MUST be recorded in the spec's
   Clarifications section.
-- A plan MUST NOT proceed past a failing Constitution Check; a CRITICAL `/speckit-analyze` finding
-  MUST block implementation until it is resolved.
+- A plan MUST NOT proceed past a failing Constitution Check.
+- `/speckit-analyze` is optional in this workshop. When it runs, a CRITICAL finding MUST block
+  implementation until it is resolved.
 
 Rationale: every line of code traces back to a task and a spec, so a reviewer can check the build
 against what was asked.
@@ -90,23 +96,24 @@ Rationale: predictable failures make the API and its end-to-end tests trustworth
 - Accessibility MUST hold: every control is reachable and usable by keyboard with the visible green
   focus outline; text contrast is at least 4.5:1; icons are decorative and every control has a text
   name; the page language is `nl`.
-- A UI task MUST NOT be checked off until its page has been checked in a browser at 1280px and 375px
-  wide, including keyboard focus and contrast, and the result is noted in `tasks.md`.
+- A feature's changed pages MUST be checked once in a browser, at 1280px and 375px wide, including
+  keyboard focus and contrast, after its last UI task and before the feature counts as done; the
+  result is noted in `tasks.md`. A single UI task is checked off without this check.
 
 Rationale: one token set and one component catalogue keep every page consistent and accessible.
 
-### VI. Tested and Green Before Done
+### VI. Green Before Done, No New Tests in This Workshop
 
-- Every user story MUST ship with tests, and `tasks.md` MUST contain the test tasks for it.
-- A test file sits beside its module as `<Module>.spec.ts` or `<Module>.spec.tsx`; test names are
-  claims written as sentences.
-- API end-to-end suites MUST run the real server against a scratch store through
-  `startScratchApiServer()`; tests MUST NOT touch `.data/`.
-- Interactive components MUST be tested with Testing Library.
+- This workshop builds for speed: user stories ship without new tests. A plan MUST NOT plan unit,
+  component or end-to-end tests, and `tasks.md` MUST NOT contain tasks that write them.
+- The existing tests MUST keep passing. A change that breaks one fixes the code, or updates that
+  test when the spec changed the behaviour on purpose.
+- Tests MUST NOT touch `.data/`.
 - `bun run typecheck`, `bun run lint` and `bun run test` MUST all pass with zero errors before a
   task is checked off in `tasks.md` and before every commit.
 
-Rationale: agent-written code is only trustworthy when a mechanical check says so.
+Rationale: the workshop is about the Spec Kit flow, not about test writing; the type checker, the
+linter and the existing suites still catch what a change breaks.
 
 ## Technology Stack and Constraints
 
@@ -157,7 +164,7 @@ Rationale: agent-written code is only trustworthy when a mechanical check says s
   for a new principle or section or materially expanded guidance, PATCH for wording that changes no
   rule.
 - **Compliance**: every plan's Constitution Check gates its research and is checked again after its
-  design; a violation is fixed or justified in Complexity Tracking. `/speckit-analyze` checks spec,
-  plan and tasks against this constitution, and a conflict with it is always CRITICAL.
+  design; a violation is fixed or justified in Complexity Tracking. When `/speckit-analyze` runs, it
+  checks spec, plan and tasks against this constitution, and a conflict with it is always CRITICAL.
 
-**Version**: 1.0.0 | **Ratified**: 2026-10-11 | **Last Amended**: 2026-10-11
+**Version**: 2.0.0 | **Ratified**: 2026-10-11 | **Last Amended**: 2026-10-15
