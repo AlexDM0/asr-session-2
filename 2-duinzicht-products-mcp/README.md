@@ -4,6 +4,8 @@ A read-only [Model Context Protocol](https://modelcontextprotocol.io) server wit
 
 It runs locally on your machine at `http://localhost:3333/mcp` (Streamable HTTP) and accepts connections from your own machine only.
 
+Doing the workshop? Open [`workshop-steps.html`](workshop-steps.html) in a browser: the sprint step by step, with copy buttons and a checklist.
+
 ## Run it
 
 This folder sits next to the portal folder in the session 2 repository, never inside it. Copilot must get the rules only through the MCP server, not by reading the JSON files.

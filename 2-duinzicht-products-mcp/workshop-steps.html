@@ -1,0 +1,1568 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MCP workshop steps</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Zilla+Slab:wght@500;600&family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  /* Duinzicht theme: the tokens of 1-mijn-duinzicht/docs/design-system.md. */
+  :root {
+    --ink: #141414;
+    --muted: #5e5b55;
+    --body-text: #3a3833;
+    --line: #e6e3dd;
+    --line-soft: #eeebe5;
+    --surface: #ffffff;
+    --surface-grey: #f4f3f1;
+    --cream: #fdf6e1;
+    --amber: #eba72a;
+    --amber-dark: #c98a14;
+    --amber-icon: #b5790c;
+    --sage: #e8f0e2;
+    --green: #2f7a4f;
+    --ok-background: #dcebdd;
+    --ok-foreground: #1f5a36;
+    --font-head: 'Zilla Slab', Georgia, serif;
+    --font-body: 'Figtree', system-ui, sans-serif;
+    --font-code: 'SF Mono', Menlo, Consolas, monospace;
+    --shadow-small: 0 1px 6px rgba(20, 20, 20, 0.06);
+    --shadow-medium: 0 2px 14px rgba(20, 20, 20, 0.08);
+    --gutter: 48px;
+    --dock-width: 320px;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  [hidden] {
+    display: none !important;
+  }
+
+  html {
+    scrollbar-gutter: stable;
+  }
+
+  body {
+    margin: 0;
+    background: var(--surface-grey);
+    color: var(--body-text);
+    font-family: var(--font-body);
+    font-size: 16px;
+    line-height: 1.5;
+  }
+
+  h1,
+  h2,
+  h3 {
+    color: var(--ink);
+    font-family: var(--font-head);
+    font-weight: 500;
+  }
+
+  button {
+    font: inherit;
+    color: inherit;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--green);
+    outline-offset: 2px;
+  }
+
+  code {
+    padding: 1px 5px;
+    background: var(--line-soft);
+    color: var(--ink);
+    font-family: var(--font-code);
+    font-size: 0.86em;
+    overflow-wrap: anywhere;
+  }
+
+  strong {
+    color: var(--ink);
+  }
+
+  .visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+
+  /* Header: utility bar and main bar, as in the portal */
+
+  .utility-bar {
+    background: var(--surface-grey);
+    border-bottom: 1px solid var(--line);
+    color: var(--muted);
+    font-size: 13px;
+  }
+
+  .utility-bar-inner,
+  .main-bar-inner {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    max-width: 1560px;
+    margin: 0 auto;
+    padding: 0 var(--gutter);
+  }
+
+  .utility-bar-inner {
+    justify-content: space-between;
+    min-height: 34px;
+  }
+
+  .main-bar {
+    border-bottom: 1px solid var(--line);
+    background: var(--surface);
+  }
+
+  .main-bar-inner {
+    min-height: 76px;
+  }
+
+  .wordmark {
+    display: inline-flex;
+    flex-direction: column;
+    line-height: 1;
+  }
+
+  .wordmark-name {
+    color: var(--ink);
+    font-family: var(--font-head);
+    font-size: 30px;
+    font-weight: 600;
+    letter-spacing: -0.5px;
+  }
+
+  .wordmark-dot {
+    color: var(--amber);
+  }
+
+  .wordmark-tagline {
+    margin-top: 3px;
+    color: var(--muted);
+    font-size: 12px;
+    letter-spacing: 1.5px;
+  }
+
+  .main-bar-title {
+    margin: 0 0 0 20px;
+    padding-left: 20px;
+    border-left: 1px solid var(--line);
+    color: var(--ink);
+    font-size: 17px;
+    font-weight: 600;
+  }
+
+  .top-bar-summary {
+    margin-left: auto;
+    padding: 4px 12px;
+    background: var(--ok-background);
+    color: var(--ok-foreground);
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  .canvas {
+    max-width: 1560px;
+    margin: 0 auto;
+    padding: 20px var(--gutter) 20px;
+  }
+
+  /* Buttons, as the portal's Button */
+
+  .button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 22px;
+    border: 1.5px solid var(--ink);
+    background: transparent;
+    color: var(--ink);
+    font-size: 17px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .button:hover {
+    border-color: var(--green);
+    color: var(--green);
+  }
+
+  .button--primary {
+    padding: 14px 24px;
+    border: 0;
+    border-bottom: 2px solid var(--amber-dark);
+    background: var(--amber);
+    color: var(--ink);
+  }
+
+  .button--primary:hover {
+    border-color: var(--amber-dark);
+    color: var(--ink);
+  }
+
+  .button--ghost {
+    border-color: transparent;
+    color: var(--ink);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .text-link {
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--ink);
+    font-weight: 600;
+    text-decoration: underline;
+    text-decoration-color: var(--amber);
+    text-decoration-thickness: 2px;
+    text-underline-offset: 3px;
+    cursor: pointer;
+  }
+
+  .text-link:hover {
+    color: var(--green);
+  }
+
+  /* Intro */
+
+  .intro-card {
+    display: grid;
+    grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+    gap: 40px;
+    padding: 40px;
+    background: var(--surface);
+    box-shadow: var(--shadow-small);
+  }
+
+  .intro-phase {
+    margin: 0 0 8px;
+    color: var(--amber-icon);
+    font-weight: 600;
+  }
+
+  .intro-card h1 {
+    margin: 0 0 14px;
+    font-size: 44px;
+    line-height: 1.1;
+  }
+
+  .intro-story {
+    margin: 0 0 24px;
+    font-size: 18px;
+  }
+
+  .who-is-who {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+
+  .who-card {
+    padding: 16px;
+    border: 1px solid var(--line);
+  }
+
+  .who-monogram {
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    margin-bottom: 10px;
+    border-radius: 50%;
+    background: var(--sage);
+    color: var(--green);
+    font-family: var(--font-head);
+    font-size: 18px;
+    font-weight: 600;
+  }
+
+  .who-card strong {
+    display: block;
+  }
+
+  .who-card span {
+    color: var(--muted);
+    font-size: 14px;
+  }
+
+  .intro-what {
+    margin: 0 0 24px;
+    font-size: 17px;
+  }
+
+  .intro-aside {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  .done-when-block {
+    padding: 20px 22px;
+    border: 1px solid var(--line);
+  }
+
+  .done-when-block h2 {
+    margin: 0 0 8px;
+    font-size: 22px;
+  }
+
+  .done-when-block ul {
+    margin: 0;
+    padding-left: 20px;
+  }
+
+  .done-when-block li + li {
+    margin-top: 4px;
+  }
+
+  /* Key material: the feature request */
+
+  .key-material {
+    padding: 22px 24px;
+    border-left: 4px solid var(--amber);
+    background: var(--cream);
+  }
+
+  .key-material-title {
+    margin: 0 0 6px;
+    color: var(--amber-icon);
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  .key-material-text {
+    margin: 0;
+    color: var(--ink);
+    font-family: var(--font-head);
+    font-size: 26px;
+    font-weight: 500;
+    line-height: 1.25;
+  }
+
+  .key-material-detail {
+    margin: 12px 0 0;
+    color: var(--muted);
+    font-size: 15px;
+  }
+
+  .key-material--compact {
+    padding: 16px 18px;
+  }
+
+  .key-material--compact .key-material-text {
+    font-size: 20px;
+  }
+
+  .key-material--compact .key-material-detail {
+    margin-top: 8px;
+    font-size: 14px;
+  }
+
+  /* Work canvas: dock and work */
+
+  .work-canvas {
+    display: grid;
+    grid-template-columns: var(--dock-width) minmax(0, 1fr);
+    gap: 28px;
+    align-items: start;
+  }
+
+  .dock {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .dock.is-pinned {
+    position: sticky;
+    top: 16px;
+  }
+
+  .dock-card {
+    background: var(--surface);
+    box-shadow: var(--shadow-small);
+  }
+
+  .dock-card-heading {
+    margin: 0;
+    padding: 14px 16px 8px;
+    font-size: 20px;
+  }
+
+  .material-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 12px 16px;
+    border: 0;
+    border-top: 1px solid var(--line);
+    background: transparent;
+    color: var(--ink);
+    font-weight: 600;
+    text-align: left;
+    cursor: pointer;
+  }
+
+  .material-toggle:hover {
+    color: var(--green);
+  }
+
+  .material-toggle[aria-expanded='true'] svg {
+    transform: rotate(180deg);
+  }
+
+  .material-panel {
+    padding: 0 16px 14px;
+    font-size: 14px;
+  }
+
+  .material-panel p {
+    margin: 0 0 8px;
+  }
+
+  .tool-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .tool-list li + li {
+    margin-top: 8px;
+  }
+
+  .tool-list code {
+    font-weight: 600;
+  }
+
+  .tool-list span {
+    display: block;
+    color: var(--muted);
+  }
+
+  .fix-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .fix-list li + li {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid var(--line-soft);
+  }
+
+  .fix-list strong {
+    display: block;
+    margin-bottom: 2px;
+  }
+
+  .fix-list li.is-highlighted {
+    margin-right: -8px;
+    margin-left: -8px;
+    padding-right: 8px;
+    padding-left: 8px;
+    border-left: 3px solid var(--amber);
+    background: var(--cream);
+  }
+
+  .dock-back {
+    align-self: flex-start;
+  }
+
+  /* Work area */
+
+  .work {
+    min-width: 0;
+    background: var(--surface);
+    box-shadow: var(--shadow-small);
+  }
+
+  .stepper {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 4px;
+    margin: 0;
+    padding: 16px 24px 0;
+    list-style: none;
+  }
+
+  .stepper-item {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+    width: 100%;
+    padding: 0 0 10px;
+    border: 0;
+    background: transparent;
+    text-align: left;
+    cursor: pointer;
+  }
+
+  .stepper-bar {
+    width: 100%;
+    height: 6px;
+    background: var(--line);
+  }
+
+  .stepper-heading {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .stepper-dot {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: var(--line-soft);
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 700;
+  }
+
+  .stepper-label {
+    color: var(--muted);
+    font-size: 14px;
+    line-height: 1.25;
+  }
+
+  .stepper-status {
+    min-height: 16px;
+    color: var(--muted);
+    font-size: 13px;
+  }
+
+  .stepper-item:hover .stepper-label {
+    color: var(--green);
+  }
+
+  .is-current .stepper-bar {
+    background: var(--amber);
+  }
+
+  .is-current .stepper-dot {
+    background: var(--amber);
+    color: var(--ink);
+  }
+
+  .is-current .stepper-label {
+    color: var(--ink);
+    font-weight: 700;
+  }
+
+  .is-done .stepper-bar {
+    background: var(--green);
+  }
+
+  .is-done .stepper-dot {
+    background: var(--sage);
+    color: var(--green);
+  }
+
+  .is-done .stepper-status {
+    color: var(--green);
+    font-weight: 600;
+  }
+
+  .step-viewport {
+    overflow: clip;
+    border-top: 1px solid var(--line);
+  }
+
+  .step-track {
+    display: flex;
+    align-items: flex-start;
+    transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+
+  .step-panel {
+    flex: 0 0 100%;
+    min-width: 0;
+    padding: 18px 32px 4px;
+  }
+
+  .step-kicker {
+    margin: 0 0 2px;
+    color: var(--amber-icon);
+    font-size: 15px;
+    font-weight: 600;
+  }
+
+  .step-heading {
+    margin: 0 0 4px;
+    font-size: 30px;
+    line-height: 1.15;
+  }
+
+  .step-heading:focus {
+    outline: none;
+  }
+
+  .step-instruction {
+    margin: 0 0 16px;
+    color: var(--muted);
+    font-size: 18px;
+  }
+
+  .step-columns {
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+    gap: 28px;
+  }
+
+  .step-columns > div > :last-child {
+    margin-bottom: 0;
+  }
+
+  .step-panel p,
+  .step-panel ol,
+  .step-panel ul {
+    margin: 0 0 14px;
+  }
+
+  .step-panel ol li + li,
+  .step-panel ul li + li {
+    margin-top: 8px;
+  }
+
+  .code-block {
+    position: relative;
+    margin: 0 0 14px;
+  }
+
+  .code-block pre {
+    margin: 0;
+    padding: 14px 16px;
+    background: var(--ink);
+    color: #f4f3f1;
+    font-family: var(--font-code);
+    font-size: 14px;
+    line-height: 1.55;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+
+  .copy-button {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    padding: 4px 12px;
+    border: 0;
+    border-bottom: 2px solid var(--amber-dark);
+    background: var(--amber);
+    color: var(--ink);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .code-block pre.has-copy-button {
+    padding-right: 84px;
+  }
+
+  .prompt-block {
+    position: relative;
+    margin: 0 0 16px;
+    padding: 14px 96px 14px 18px;
+    border-left: 4px solid var(--amber);
+    background: var(--cream);
+    color: var(--ink);
+    font-family: var(--font-head);
+    font-size: 21px;
+    font-weight: 500;
+  }
+
+  .prompt-block .copy-button {
+    top: 50%;
+    font-family: var(--font-body);
+    transform: translateY(-50%);
+  }
+
+  .callout {
+    margin: 0 0 14px;
+    padding: 12px 16px;
+    border-left: 4px solid var(--amber);
+    background: var(--cream);
+  }
+
+  .callout strong:first-child {
+    display: block;
+  }
+
+  .folder-tree {
+    margin: 0 0 14px;
+    padding: 12px 16px;
+    border: 1px solid var(--line);
+    color: var(--ink);
+    font-family: var(--font-code);
+    font-size: 14px;
+    line-height: 1.55;
+    white-space: pre-wrap;
+  }
+
+  .check-list {
+    margin: 2px 0 14px;
+    padding: 12px 18px;
+    background: var(--surface-grey);
+  }
+
+  .check-list h3 {
+    margin: 0 0 6px;
+    font-size: 19px;
+  }
+
+  .check-list label {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    cursor: pointer;
+  }
+
+  .check-list label + label {
+    margin-top: 8px;
+  }
+
+  .check-list input {
+    flex: none;
+    width: 18px;
+    height: 18px;
+    margin: 3px 0 0;
+    accent-color: var(--green);
+  }
+
+  .os-switch {
+    display: inline-flex;
+    margin: 0 0 8px;
+    border: 1.5px solid var(--ink);
+  }
+
+  .os-switch button {
+    padding: 4px 10px;
+    border: 0;
+    background: transparent;
+    font-size: 13px;
+    cursor: pointer;
+  }
+
+  .os-switch button[aria-pressed='true'] {
+    background: var(--ink);
+    color: var(--surface);
+  }
+
+  [data-operating-system] {
+    display: none;
+  }
+
+  body[data-selected-operating-system='windows'] [data-operating-system='windows'],
+  body[data-selected-operating-system='unix'] [data-operating-system='unix'] {
+    display: block;
+  }
+
+  .completion {
+    padding: 24px 0 8px;
+    text-align: center;
+  }
+
+  .stamp {
+    display: inline-block;
+    margin-bottom: 16px;
+    padding: 6px 18px;
+    background: var(--ok-background);
+    color: var(--ok-foreground);
+    font-size: 18px;
+    font-weight: 700;
+  }
+
+  .completion p {
+    max-width: 620px;
+    margin-right: auto;
+    margin-left: auto;
+  }
+
+  /* Sticky action bar */
+
+  .action-bar {
+    position: sticky;
+    bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 0 12px 12px;
+    padding: 12px 14px 12px 20px;
+    border: 1px solid var(--line);
+    background: var(--surface);
+    box-shadow: var(--shadow-medium);
+  }
+
+  .action-result {
+    flex: 1;
+    min-width: 0;
+    margin: 0;
+    color: var(--muted);
+  }
+
+  .action-result.is-complete strong {
+    color: var(--green);
+  }
+
+  /* Narrower screens */
+
+  @media (max-width: 1179px) {
+    :root {
+      --gutter: 24px;
+    }
+
+    .work-canvas {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .dock {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      align-items: start;
+    }
+
+    .dock .dock-back {
+      grid-column: 1 / -1;
+    }
+
+    .intro-card {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 24px;
+      padding: 28px;
+    }
+  }
+
+  @media (max-width: 760px) {
+    :root {
+      --gutter: 16px;
+    }
+
+    .main-bar-inner {
+      min-height: 64px;
+    }
+
+    .main-bar-title {
+      display: none;
+    }
+
+    .wordmark-name {
+      font-size: 24px;
+    }
+
+    .dock {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .who-is-who {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .intro-card {
+      padding: 22px 18px;
+    }
+
+    .intro-card h1 {
+      font-size: 32px;
+    }
+
+    .stepper {
+      padding: 14px 12px 0;
+    }
+
+    .stepper-label,
+    .stepper-status {
+      display: none;
+    }
+
+    .step-panel {
+      padding: 20px 18px 8px;
+    }
+
+    .step-heading {
+      font-size: 26px;
+    }
+
+    .step-columns {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 0;
+    }
+
+    .prompt-block {
+      padding-right: 18px;
+      padding-bottom: 50px;
+      font-size: 18px;
+    }
+
+    .prompt-block .copy-button {
+      top: auto;
+      bottom: 10px;
+      transform: none;
+    }
+
+    .action-bar {
+      gap: 8px;
+      margin: 0 8px 8px;
+      padding: 8px;
+    }
+
+    .action-result {
+      display: none;
+    }
+
+    .action-bar .button {
+      padding: 8px 12px;
+      font-size: 15px;
+    }
+
+    .action-bar .button--primary {
+      flex: 1;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .step-track {
+      transition: none;
+    }
+  }
+</style>
+</head>
+<body data-selected-operating-system="unix">
+
+<header>
+  <div class="utility-bar">
+    <div class="utility-bar-inner"><span>AI Orchestrator training, session 2</span><span>Sprint 2: MCP</span></div>
+  </div>
+  <div class="main-bar">
+    <div class="main-bar-inner">
+      <span class="wordmark"><span class="wordmark-name">duinzicht<span class="wordmark-dot">.</span></span><span class="wordmark-tagline">Verzekeringen</span></span>
+      <p class="main-bar-title">Give Copilot the real rules</p>
+      <span class="top-bar-summary" id="top-bar-summary">0 of 6 steps done</span>
+    </div>
+  </div>
+</header>
+
+<div class="visually-hidden" aria-live="polite" id="announcer"></div>
+
+<main class="canvas">
+
+  <section class="intro-card" id="intro" aria-labelledby="intro-heading">
+    <div>
+      <p class="intro-phase">Meet the products server</p>
+      <h1 id="intro-heading" tabindex="-1">Give Copilot the real rules</h1>
+      <p class="intro-story">Copilot has never seen the rates of Duinzicht Verzekeringen, so it makes them up. You watch that happen in your own spec, then connect this server and let Copilot check the spec against Duinzicht's product rules.</p>
+      <div class="who-is-who">
+        <div class="who-card"><span class="who-monogram">S</span><strong>Sanne de Vries</strong><span>The customer who wants a premium quote</span></div>
+        <div class="who-card"><span class="who-monogram">C</span><strong>Copilot</strong><span>Your agent, which does not know Duinzicht's rates</span></div>
+        <div class="who-card"><span class="who-monogram">P</span><strong>Products server</strong><span>Duinzicht's real product rules, on your laptop</span></div>
+      </div>
+      <p class="intro-what">You specify a premium calculator twice: once from what Copilot guesses, once from what the server says.</p>
+      <button class="button button--primary" type="button" id="start-button">Start with the spec</button>
+    </div>
+    <div class="intro-aside">
+      <div class="key-material" id="intro-key-material">
+        <p class="key-material-title">The feature request</p>
+        <p class="key-material-text">Sanne calculates the monthly premium of an insurance she does not have yet.</p>
+        <p class="key-material-detail">In the portal the button is called "Verzekering toevoegen".</p>
+      </div>
+      <div class="done-when-block">
+        <h2>Done when</h2>
+        <ul>
+          <li>Your spec names Duinzicht's real premium rules, fetched from the server</li>
+          <li>You can point at what Copilot invented before</li>
+          <li>The retro proposed rules and you chose which to keep</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <div class="work-canvas" id="work-canvas" hidden>
+    <aside class="dock" id="dock" aria-label="Materials">
+      <div class="key-material key-material--compact">
+        <p class="key-material-title">The feature request</p>
+        <p class="key-material-text">Sanne calculates the monthly premium of an insurance she does not have yet.</p>
+        <p class="key-material-detail">Server: <code>http://localhost:3333/mcp</code></p>
+      </div>
+
+      <div class="dock-card">
+        <h2 class="dock-card-heading">Materials</h2>
+        <button class="material-toggle" type="button" aria-expanded="false" aria-controls="material-tools" data-material="tools">Read the five tools<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
+        <div class="material-panel" id="material-tools" hidden>
+          <ul class="tool-list">
+            <li><code>list_products</code><span>Every product, and whether it can be quoted online</span></li>
+            <li><code>get_product</code><span>Cover, exclusions and conditions of one product</span></li>
+            <li><code>get_premium_rules</code><span>Base premium, factors, modules, deductibles and the general rules</span></li>
+            <li><code>get_discount_rules</code><span>Package discount, deductible discounts, minimum premium</span></li>
+            <li><code>explain_premium_calculation</code><span>The steps in order, with worked examples</span></li>
+          </ul>
+        </div>
+        <button class="material-toggle" type="button" aria-expanded="false" aria-controls="material-fixes" data-material="fixes">Read the fixes<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
+        <div class="material-panel" id="material-fixes" hidden>
+          <ul class="fix-list">
+            <li data-fix="port">
+              <strong>Port 3333 is taken</strong>
+              <p>Start on another port and change the <code>url</code> in <code>.mcp.json</code> too.</p>
+              <div class="os-switch" role="group" aria-label="Operating system">
+                <button type="button" data-operating-system-choice="unix" aria-pressed="true">macOS, Linux</button>
+                <button type="button" data-operating-system-choice="windows" aria-pressed="false">Windows</button>
+              </div>
+              <div class="code-block" data-operating-system="unix"><pre class="copy-source has-copy-button">PORT=4444 bun run dev</pre><button class="copy-button" type="button">Copy</button></div>
+              <div class="code-block" data-operating-system="windows"><pre class="copy-source has-copy-button">$env:PORT=4444; bun run dev</pre><button class="copy-button" type="button">Copy</button></div>
+            </li>
+            <li data-fix="install"><strong><code>bun run dev</code> fails</strong>Run the setup in the repository root again, or <code>bun install</code> in this folder.</li>
+            <li data-fix="missing-server"><strong>The server is not in VS Code</strong>Trust the folder, check that <code>.mcp.json</code> is in the root of <code>1-mijn-duinzicht</code> and that the server window runs. Still nothing? The organisation's "MCP servers in Copilot" policy may be off: ask your trainer.</li>
+            <li data-fix="no-tool-calls"><strong>No tool calls in the server window</strong>In the chat input, open Configure Tools and switch the five <code>duinzicht-products</code> tools on. Then run the clarify step again.</li>
+          </ul>
+        </div>
+      </div>
+
+      <button class="button button--ghost dock-back" type="button" id="back-to-intro">Back to the intro</button>
+    </aside>
+
+    <section class="work" aria-label="Steps">
+      <ol class="stepper" id="stepper"></ol>
+
+      <div class="step-viewport" id="step-viewport">
+        <div class="step-track" id="step-track">
+
+          <article class="step-panel" data-step-identifier="specify-without-server" data-step-label="Specify without server">
+            <p class="step-kicker">Step 1 of 6</p>
+            <h2 class="step-heading" tabindex="-1">Specify the feature, without the server</h2>
+            <p class="step-instruction">See what Copilot does with a request that depends on knowledge it does not have.</p>
+            <div class="step-columns">
+              <div>
+                <p>In VS Code, with <code>1-mijn-duinzicht</code> open, run <code>/speckit-specify</code> with exactly this request. No <code>/grill-me</code> this time.</p>
+                <div class="prompt-block"><span class="copy-source">Sanne calculates the monthly premium of an insurance she does not have yet.</span><button class="copy-button" type="button">Copy</button></div>
+                <p>Spec Kit may ask up to three questions. Answer briefly, or let it leave the markers in.</p>
+              </div>
+              <div>
+                <p>Then read <code>spec.md</code> as a group. What does Copilot know about Duinzicht?</p>
+                <ul>
+                  <li>Which products, rates, discounts and tax rules are in it?</li>
+                  <li>Which did it invent, which did it leave for later, which are missing?</li>
+                </ul>
+                <div class="callout"><strong>Do not fix the spec yet.</strong>Write the numbers on paper. You compare them in step 4.</div>
+              </div>
+            </div>
+            <div class="check-list">
+              <h3>Done when</h3>
+              <label><input type="checkbox" data-check="spec-written"> A new <code>spec.md</code> exists for the premium calculator</label>
+              <label><input type="checkbox" data-check="numbers-noted"> You wrote down what Copilot invented and what is missing</label>
+            </div>
+          </article>
+
+          <article class="step-panel" data-step-identifier="run-server" data-step-label="Run the server">
+            <p class="step-kicker">Step 2 of 6</p>
+            <h2 class="step-heading" tabindex="-1">Run the products server</h2>
+            <p class="step-instruction">Start the server in its own terminal and leave it running.</p>
+            <div class="step-columns">
+              <div>
+                <p>Open a terminal in <code>2-duinzicht-products-mcp</code>, the folder next to the portal, and run:</p>
+                <div class="code-block"><pre class="copy-source has-copy-button">bun run dev</pre><button class="copy-button" type="button">Copy</button></div>
+                <p>When it runs, the window shows:</p>
+                <div class="code-block"><pre>Loaded 7 products from .../data
+MCP server "duinzicht-products" is running at http://localhost:3333/mcp</pre></div>
+                <p>Put the window next to VS Code. Every tool call Copilot makes shows up there. <button class="text-link" type="button" data-open-fix="install">It fails? Read the fixes</button></p>
+              </div>
+              <div>
+                <div class="callout"><strong>Next to, never inside.</strong>Inside the portal folder, Copilot would read the rules straight from the server's files and never ask the server.</div>
+<pre class="folder-tree">session-2/
+├── 1-mijn-duinzicht/          in VS Code
+└── 2-duinzicht-products-mcp/  in a terminal</pre>
+              </div>
+            </div>
+            <div class="check-list">
+              <h3>Done when</h3>
+              <label><input type="checkbox" data-check="server-running"> The window says the server is running at <code>http://localhost:3333/mcp</code></label>
+            </div>
+          </article>
+
+          <article class="step-panel" data-step-identifier="connect-copilot" data-step-label="Connect to Copilot">
+            <p class="step-kicker">Step 3 of 6</p>
+            <h2 class="step-heading" tabindex="-1">Connect it to Copilot</h2>
+            <p class="step-instruction">Create <code>.mcp.json</code> in the root of <code>1-mijn-duinzicht</code>, the portal folder.</p>
+            <div class="step-columns">
+              <div>
+                <div class="code-block"><pre class="copy-source has-copy-button">{
+  "mcpServers": {
+    "duinzicht-products": {
+      "type": "http",
+      "url": "http://localhost:3333/mcp",
+      "tools": ["*"]
+    }
+  }
+}</pre><button class="copy-button" type="button">Copy</button></div>
+                <p>Use <code>.mcp.json</code>, not <code>.vscode/mcp.json</code>: VS Code marks that one deprecated and Copilot CLI does not read it.</p>
+              </div>
+              <div>
+                <ol>
+                  <li><strong>Trust the folder.</strong> In Restricted Mode VS Code loads no MCP server. Not asked? Run <strong>Workspaces: Manage Workspace Trust</strong>.</li>
+                  <li><strong>Start it.</strong> Click <strong>Start</strong> above the entry in <code>.mcp.json</code>, or run <strong>MCP: List Servers</strong> and pick <code>duinzicht-products</code>.</li>
+                  <li><strong>Check the tools.</strong> In the chat input, open <strong>Configure Tools</strong>.</li>
+                </ol>
+                <p>Copilot CLI: <code>copilot mcp list</code> in the portal folder. <button class="text-link" type="button" data-open-fix="missing-server">Not there? Read the fixes</button></p>
+              </div>
+            </div>
+            <div class="check-list">
+              <h3>Done when</h3>
+              <label><input type="checkbox" data-check="tools-listed"> Configure Tools lists five <code>duinzicht-products</code> tools, switched on</label>
+            </div>
+          </article>
+
+          <article class="step-panel" data-step-identifier="clarify-with-server" data-step-label="Check the spec">
+            <p class="step-kicker">Step 4 of 6</p>
+            <h2 class="step-heading" tabindex="-1">Check the spec against the server</h2>
+            <p class="step-instruction">Run <code>/speckit-clarify</code> with exactly this sentence.</p>
+            <div class="prompt-block"><span class="copy-source">Check every premium rule against the Duinzicht products MCP server</span><button class="copy-button" type="button">Copy</button></div>
+            <div class="step-columns">
+              <div>
+                <p><strong>Watch the server window.</strong> Every call shows up as a line such as <code>Tool call: get_premium_rules {"productCode":"reis"}</code>.</p>
+                <p>Copilot asks to allow a call? Allow it: every tool only reads. <button class="text-link" type="button" data-open-fix="no-tool-calls">No calls? Read the fixes</button></p>
+              </div>
+              <div>
+                <p><strong>Read <code>spec.md</code> again</strong> next to your notes from step 1. Which numbers were invented, which were missing, which changed?</p>
+                <p>Look at the order of the calculation too. The server is strict about it.</p>
+              </div>
+            </div>
+            <div class="check-list">
+              <h3>Done when</h3>
+              <label><input type="checkbox" data-check="tool-calls-seen"> The server window shows Copilot's tool calls</label>
+              <label><input type="checkbox" data-check="spec-compared"> You compared the new spec with your notes from step 1</label>
+            </div>
+          </article>
+
+          <article class="step-panel" data-step-identifier="plan-tasks-implement" data-step-label="Plan and build">
+            <p class="step-kicker">Step 5 of 6</p>
+            <h2 class="step-heading" tabindex="-1">Plan, tasks, implement</h2>
+            <p class="step-instruction">Continue the usual flow. Read every file before the next step.</p>
+            <div class="step-columns">
+              <div>
+                <div class="code-block"><pre>/speckit-plan
+/speckit-tasks
+/speckit-analyze
+/speckit-implement</pre></div>
+                <p>Need a test case? Ask the server: <code>explain_premium_calculation</code> has worked examples with every intermediate amount.</p>
+              </div>
+              <div>
+                <p>The package discount depends on the policies Sanne already has. Those come from the portal's own API, so the calculator combines both sources.</p>
+                <div class="callout"><strong>It does not have to be finished.</strong>The goal of this sprint is a spec built on real rules instead of invented ones.</div>
+              </div>
+            </div>
+            <div class="check-list">
+              <h3>Done when</h3>
+              <label><input type="checkbox" data-check="plan-read"> You read <code>plan.md</code> and <code>tasks.md</code> before implement</label>
+              <label><input type="checkbox" data-check="test-case"> A worked example from the server is a test case</label>
+            </div>
+          </article>
+
+          <article class="step-panel" data-step-identifier="reflect" data-step-label="Reflect">
+            <p class="step-kicker">Step 6 of 6</p>
+            <h2 class="step-heading" tabindex="-1">Let the agent reflect</h2>
+            <p class="step-instruction">Turn today's mistakes into rules the next run starts with.</p>
+            <div class="step-columns">
+              <div>
+                <ol>
+                  <li>Run <code>/retro</code> on everything the agent did today, not just this feature.</li>
+                  <li>Read what it suggests: new rules for the constitution or the Copilot instructions.</li>
+                  <li>Apply the ones you agree with, skip the rest.</li>
+                </ol>
+              </div>
+              <div>
+                <div class="callout"><strong>A good rule is specific.</strong>"Premium rules always come from the products MCP server", not "be careful with rules".</div>
+              </div>
+            </div>
+            <div class="check-list">
+              <h3>Done when</h3>
+              <label><input type="checkbox" data-check="retro-applied"> You applied the rules you agree with</label>
+            </div>
+          </article>
+
+          <article class="step-panel" data-step-identifier="completion" data-step-label="">
+            <div class="completion">
+              <span class="stamp">Done</span>
+              <h2 class="step-heading" tabindex="-1">Your spec is built on Duinzicht's rules</h2>
+              <p class="step-instruction">Copilot looked the rules up instead of guessing them, and the retro carries the lesson into the next run.</p>
+              <p>Leave the server running: you may want it in Sprint 3.</p>
+            </div>
+          </article>
+
+        </div>
+      </div>
+
+      <div class="action-bar" id="action-bar">
+        <p class="action-result" id="action-result"></p>
+        <button class="button button--ghost" type="button" id="previous-button">Previous step</button>
+        <button class="button button--primary" type="button" id="next-button">Next</button>
+      </div>
+    </section>
+  </div>
+</main>
+
+<script>
+  const STATE_STORAGE_KEY = 'duinzicht-mcp-workshop-state';
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+  const introElement = document.getElementById('intro');
+  const workCanvasElement = document.getElementById('work-canvas');
+  const dockElement = document.getElementById('dock');
+  const stepperElement = document.getElementById('stepper');
+  const stepViewportElement = document.getElementById('step-viewport');
+  const stepTrackElement = document.getElementById('step-track');
+  const actionResultElement = document.getElementById('action-result');
+  const previousButton = document.getElementById('previous-button');
+  const nextButton = document.getElementById('next-button');
+  const topBarSummaryElement = document.getElementById('top-bar-summary');
+  const announcerElement = document.getElementById('announcer');
+
+  const panelElements = Array.from(stepTrackElement.querySelectorAll('.step-panel'));
+  const workStepPanels = panelElements.filter((panelElement) => panelElement.dataset.stepIdentifier !== 'completion');
+  const completionPanelIndex = panelElements.length - 1;
+
+  function readStoredState() {
+    try {
+      const storedState = JSON.parse(window.localStorage.getItem(STATE_STORAGE_KEY) || '{}');
+      return storedState && typeof storedState === 'object' ? storedState : {};
+    } catch (storageError) {
+      return {};
+    }
+  }
+
+  function writeStoredState() {
+    try {
+      window.localStorage.setItem(STATE_STORAGE_KEY, JSON.stringify({
+        view: state.view,
+        currentPanelIndex: state.currentPanelIndex,
+        checkedIdentifiers: Array.from(state.checkedIdentifiers),
+        operatingSystem: state.operatingSystem,
+      }));
+    } catch (storageError) {
+      // Progress is a convenience; the page works without storage.
+    }
+  }
+
+  const storedState = readStoredState();
+  const state = {
+    view: storedState.view === 'work' ? 'work' : 'intro',
+    currentPanelIndex: Number.isInteger(storedState.currentPanelIndex)
+      ? Math.min(Math.max(storedState.currentPanelIndex, 0), completionPanelIndex)
+      : 0,
+    checkedIdentifiers: new Set(Array.isArray(storedState.checkedIdentifiers) ? storedState.checkedIdentifiers : []),
+    operatingSystem: storedState.operatingSystem === 'windows' || storedState.operatingSystem === 'unix'
+      ? storedState.operatingSystem
+      : (/Windows/i.test(navigator.userAgent) ? 'windows' : 'unix'),
+  };
+
+  function checkboxesOf(panelElement) {
+    return Array.from(panelElement.querySelectorAll('input[data-check]'));
+  }
+
+  function checkedCountOf(panelElement) {
+    return checkboxesOf(panelElement).filter((checkbox) => state.checkedIdentifiers.has(checkbox.dataset.check)).length;
+  }
+
+  function isPanelDone(panelElement) {
+    const checkboxes = checkboxesOf(panelElement);
+    return checkboxes.length > 0 && checkedCountOf(panelElement) === checkboxes.length;
+  }
+
+  function buildStepper() {
+    workStepPanels.forEach((panelElement, panelIndex) => {
+      const listItem = document.createElement('li');
+      const stepperButton = document.createElement('button');
+      stepperButton.type = 'button';
+      stepperButton.className = 'stepper-item';
+      stepperButton.innerHTML = `<span class="stepper-bar"></span><span class="stepper-heading"><span class="stepper-dot">${panelIndex + 1}</span><span class="stepper-label"></span></span><span class="stepper-status"></span>`;
+      stepperButton.querySelector('.stepper-label').textContent = panelElement.dataset.stepLabel;
+      stepperButton.addEventListener('click', () => goToPanel(panelIndex));
+      listItem.appendChild(stepperButton);
+      stepperElement.appendChild(listItem);
+    });
+  }
+
+  function renderStepper() {
+    Array.from(stepperElement.children).forEach((listItem, panelIndex) => {
+      const panelElement = workStepPanels[panelIndex];
+      const isCurrent = panelIndex === state.currentPanelIndex;
+      const isDone = isPanelDone(panelElement);
+      const checkedCount = checkedCountOf(panelElement);
+      const checkCount = checkboxesOf(panelElement).length;
+      listItem.classList.toggle('is-current', isCurrent);
+      listItem.classList.toggle('is-done', isDone && !isCurrent);
+      const stepperButton = listItem.querySelector('.stepper-item');
+      const statusElement = listItem.querySelector('.stepper-status');
+      let statusText = '';
+      if (isCurrent) {
+        statusText = 'Now';
+      } else if (isDone) {
+        statusText = 'Done';
+      } else if (checkedCount > 0) {
+        statusText = `${checkedCount} of ${checkCount}`;
+      }
+      statusElement.textContent = statusText;
+      listItem.querySelector('.stepper-dot').textContent = isDone && !isCurrent ? '✓' : String(panelIndex + 1);
+      stepperButton.setAttribute('aria-current', isCurrent ? 'step' : 'false');
+      stepperButton.setAttribute('aria-label', `Step ${panelIndex + 1}: ${panelElement.dataset.stepLabel}${statusText ? `, ${statusText}` : ''}`);
+    });
+  }
+
+  function renderSummary() {
+    const doneCount = workStepPanels.filter(isPanelDone).length;
+    topBarSummaryElement.textContent = `${doneCount} of ${workStepPanels.length} steps done`;
+  }
+
+  function renderActionBar() {
+    const currentPanel = panelElements[state.currentPanelIndex];
+    const isCompletion = state.currentPanelIndex === completionPanelIndex;
+    previousButton.hidden = state.currentPanelIndex === 0;
+    previousButton.textContent = isCompletion ? 'Back to step 6' : 'Previous step';
+
+    if (isCompletion) {
+      actionResultElement.className = 'action-result is-complete';
+      actionResultElement.innerHTML = '<strong>Sprint 2 done.</strong>';
+      nextButton.textContent = 'Start again';
+      nextButton.className = 'button';
+      return;
+    }
+
+    const checkCount = checkboxesOf(currentPanel).length;
+    const checkedCount = checkedCountOf(currentPanel);
+    actionResultElement.className = `action-result${checkedCount === checkCount ? ' is-complete' : ''}`;
+    actionResultElement.innerHTML = checkedCount === checkCount
+      ? '<strong>All checks ticked.</strong>'
+      : `<strong>${checkedCount} of ${checkCount}</strong> checks ticked`;
+
+    const nextPanel = workStepPanels[state.currentPanelIndex + 1];
+    nextButton.className = 'button button--primary';
+    nextButton.textContent = nextPanel ? `Next: ${nextPanel.dataset.stepLabel}` : 'Finish the sprint';
+  }
+
+  function updateViewportHeight() {
+    const currentPanel = panelElements[state.currentPanelIndex];
+    stepViewportElement.style.height = `${currentPanel.offsetHeight}px`;
+  }
+
+  function updateDockPinning() {
+    const fitsOnScreen = dockElement.offsetHeight + 32 <= window.innerHeight;
+    dockElement.classList.toggle('is-pinned', fitsOnScreen && window.innerWidth >= 1180);
+  }
+
+  function setTrackPosition(withMotion) {
+    stepTrackElement.style.transition = withMotion && !prefersReducedMotion.matches ? '' : 'none';
+    stepTrackElement.style.transform = `translateX(-${state.currentPanelIndex * 100}%)`;
+    panelElements.forEach((panelElement, panelIndex) => {
+      const isCurrent = panelIndex === state.currentPanelIndex;
+      panelElement.inert = !isCurrent;
+      panelElement.setAttribute('aria-hidden', String(!isCurrent));
+    });
+    updateViewportHeight();
+    if (!withMotion) {
+      void stepTrackElement.offsetWidth;
+      stepTrackElement.style.transition = '';
+    }
+  }
+
+  function moveViewToWorkIfHidden() {
+    const workTop = stepperElement.getBoundingClientRect().top;
+    if (workTop < 0 || workTop > window.innerHeight * 0.5) {
+      stepperElement.scrollIntoView({ behavior: prefersReducedMotion.matches ? 'auto' : 'smooth', block: 'start' });
+    }
+  }
+
+  function renderAll() {
+    renderStepper();
+    renderSummary();
+    renderActionBar();
+  }
+
+  function goToPanel(panelIndex, options = {}) {
+    state.currentPanelIndex = Math.min(Math.max(panelIndex, 0), completionPanelIndex);
+    setTrackPosition(options.withMotion !== false);
+    renderAll();
+    writeStoredState();
+    const currentPanel = panelElements[state.currentPanelIndex];
+    if (options.moveFocus !== false) {
+      currentPanel.querySelector('.step-heading').focus({ preventScroll: true });
+      moveViewToWorkIfHidden();
+    }
+    announcerElement.textContent = state.currentPanelIndex === completionPanelIndex
+      ? 'Sprint 2 done'
+      : `Step ${state.currentPanelIndex + 1} of ${workStepPanels.length}: ${currentPanel.querySelector('.step-heading').textContent}`;
+    if (window.location.hash !== `#step-${state.currentPanelIndex + 1}`) {
+      history.replaceState(null, '', `#step-${state.currentPanelIndex + 1}`);
+    }
+  }
+
+  function showView(view, options = {}) {
+    state.view = view;
+    introElement.hidden = view !== 'intro';
+    workCanvasElement.hidden = view !== 'work';
+    writeStoredState();
+    if (view === 'work') {
+      goToPanel(state.currentPanelIndex, { withMotion: false, moveFocus: options.moveFocus });
+      updateDockPinning();
+    } else {
+      history.replaceState(null, '', '#intro');
+      if (options.moveFocus !== false) {
+        document.getElementById('intro-heading').focus({ preventScroll: true });
+        window.scrollTo({ top: 0 });
+      }
+    }
+  }
+
+  function setMaterialOpen(materialIdentifier, isOpen) {
+    const toggleButton = dockElement.querySelector(`[data-material="${materialIdentifier}"]`);
+    const panelElement = document.getElementById(toggleButton.getAttribute('aria-controls'));
+    toggleButton.setAttribute('aria-expanded', String(isOpen));
+    panelElement.hidden = !isOpen;
+    updateDockPinning();
+  }
+
+  function openFix(fixIdentifier) {
+    setMaterialOpen('fixes', true);
+    dockElement.querySelectorAll('[data-fix]').forEach((fixElement) => {
+      fixElement.classList.toggle('is-highlighted', fixElement.dataset.fix === fixIdentifier);
+    });
+    const fixElement = dockElement.querySelector(`[data-fix="${fixIdentifier}"]`);
+    const fixBounds = fixElement.getBoundingClientRect();
+    if (fixBounds.top < 0 || fixBounds.bottom > window.innerHeight) {
+      fixElement.scrollIntoView({ behavior: prefersReducedMotion.matches ? 'auto' : 'smooth', block: 'center' });
+    }
+  }
+
+  function selectOperatingSystem(operatingSystem) {
+    state.operatingSystem = operatingSystem;
+    document.body.dataset.selectedOperatingSystem = operatingSystem;
+    document.querySelectorAll('[data-operating-system-choice]').forEach((choiceButton) => {
+      choiceButton.setAttribute('aria-pressed', String(choiceButton.dataset.operatingSystemChoice === operatingSystem));
+    });
+    writeStoredState();
+  }
+
+  async function copyText(text) {
+    try {
+      await navigator.clipboard.writeText(text);
+      return true;
+    } catch (clipboardError) {
+      const temporaryTextArea = document.createElement('textarea');
+      temporaryTextArea.value = text;
+      document.body.appendChild(temporaryTextArea);
+      temporaryTextArea.select();
+      const copied = document.execCommand('copy');
+      temporaryTextArea.remove();
+      return copied;
+    }
+  }
+
+  function isTypingTarget(element) {
+    return element instanceof HTMLInputElement && element.type !== 'checkbox'
+      || element instanceof HTMLTextAreaElement
+      || element?.isContentEditable;
+  }
+
+  document.getElementById('start-button').addEventListener('click', () => showView('work'));
+  document.getElementById('back-to-intro').addEventListener('click', () => showView('intro'));
+
+  previousButton.addEventListener('click', () => goToPanel(state.currentPanelIndex - 1));
+  nextButton.addEventListener('click', () => {
+    if (state.currentPanelIndex === completionPanelIndex) {
+      state.checkedIdentifiers.clear();
+      document.querySelectorAll('input[data-check]').forEach((checkbox) => { checkbox.checked = false; });
+      goToPanel(0);
+      return;
+    }
+    goToPanel(state.currentPanelIndex + 1);
+  });
+
+  document.querySelectorAll('input[data-check]').forEach((checkbox) => {
+    checkbox.checked = state.checkedIdentifiers.has(checkbox.dataset.check);
+    checkbox.addEventListener('change', () => {
+      if (checkbox.checked) {
+        state.checkedIdentifiers.add(checkbox.dataset.check);
+      } else {
+        state.checkedIdentifiers.delete(checkbox.dataset.check);
+      }
+      renderAll();
+      writeStoredState();
+    });
+  });
+
+  dockElement.querySelectorAll('.material-toggle').forEach((toggleButton) => {
+    toggleButton.addEventListener('click', () => {
+      setMaterialOpen(toggleButton.dataset.material, toggleButton.getAttribute('aria-expanded') !== 'true');
+    });
+  });
+
+  document.querySelectorAll('[data-open-fix]').forEach((linkButton) => {
+    linkButton.addEventListener('click', () => openFix(linkButton.dataset.openFix));
+  });
+
+  document.querySelectorAll('[data-operating-system-choice]').forEach((choiceButton) => {
+    choiceButton.addEventListener('click', () => selectOperatingSystem(choiceButton.dataset.operatingSystemChoice));
+  });
+
+  document.querySelectorAll('.copy-button').forEach((copyButton) => {
+    copyButton.addEventListener('click', async () => {
+      const copySource = copyButton.parentElement.querySelector('.copy-source');
+      const copied = await copyText(copySource.textContent.trim());
+      copyButton.textContent = copied ? 'Copied' : 'Select and copy';
+      setTimeout(() => { copyButton.textContent = 'Copy'; }, 1600);
+    });
+  });
+
+  document.addEventListener('keydown', (keyboardEvent) => {
+    if (state.view !== 'work' || isTypingTarget(document.activeElement) || keyboardEvent.altKey || keyboardEvent.metaKey || keyboardEvent.ctrlKey) {
+      return;
+    }
+    if (keyboardEvent.key === 'ArrowRight' && state.currentPanelIndex < completionPanelIndex) {
+      goToPanel(state.currentPanelIndex + 1);
+    } else if (keyboardEvent.key === 'ArrowLeft' && state.currentPanelIndex > 0) {
+      goToPanel(state.currentPanelIndex - 1);
+    }
+  });
+
+  const panelResizeObserver = new ResizeObserver(() => {
+    updateViewportHeight();
+    updateDockPinning();
+  });
+  panelElements.forEach((panelElement) => panelResizeObserver.observe(panelElement));
+  window.addEventListener('resize', updateDockPinning);
+
+  function applyLocationHash() {
+    const stepMatch = window.location.hash.match(/^#step-(\d+)$/);
+    if (stepMatch) {
+      state.currentPanelIndex = Math.min(Math.max(Number(stepMatch[1]) - 1, 0), completionPanelIndex);
+      showView('work', { moveFocus: false });
+    } else if (window.location.hash === '#intro') {
+      showView('intro', { moveFocus: false });
+    }
+  }
+
+  window.addEventListener('hashchange', applyLocationHash);
+
+  buildStepper();
+  selectOperatingSystem(state.operatingSystem);
+  if (/^#step-\d+$|^#intro$/.test(window.location.hash)) {
+    applyLocationHash();
+  } else {
+    showView(state.view, { moveFocus: false });
+  }
+</script>
+</body>
+</html>

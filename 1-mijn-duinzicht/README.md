@@ -38,8 +38,8 @@ Run every command from this folder, `1-mijn-duinzicht/`.
 | `bun run lint` | Lints the whole repository |
 | `bun run test` | Runs every test suite |
 
-`bun run typecheck`, `bun run lint` and `bun run test` must all pass before a task counts as done and
-before every commit. The tests never touch `.data/`.
+`bun run typecheck`, `bun run lint` and `bun run test` must all pass at the end of every `tasks.md`
+phase, before its commit. The tests never touch `.data/`.
 
 ## Ports and environment variables
 
@@ -91,7 +91,7 @@ Type the skill as a slash command, followed by your own text.
 | `/speckit-plan` | `plan.md` with its Constitution Check, plus `research.md`, `data-model.md`, `contracts/` and `quickstart.md` |
 | `/speckit-tasks` | `tasks.md`, ordered by phase and user story |
 | `/speckit-analyze` | Optional in this workshop: a read-only consistency check across spec, plan and tasks; a CRITICAL finding blocks implementation |
-| `/speckit-implement` | The code, task by task, each checked off once the gates pass |
+| `/speckit-implement` | The code, phase by phase, each phase committed once the gates pass |
 | `/speckit-converge` | What is still missing compared with the spec and plan, appended to `tasks.md` for another implement run |
 
 `/speckit-checklist` and `/speckit-taskstoissues` are optional. `/speckit-constitution` amends the
