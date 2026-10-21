@@ -14,8 +14,9 @@ API over SQLite, in one Bun workspace. The binding rules are the
   the Spec Kit flow (`/speckit-specify` to `/speckit-implement`). Write no code without a task in the
   feature's `tasks.md` that covers it.
 - **Gates.** `bun run typecheck`, `bun run lint` and `bun run test` must all pass with zero errors
-  before you check off a task and before every commit. Use only these root scripts; never ad-hoc
-  `tsc` flags. Never make a gate pass by editing a tsconfig, the lint config, `package.json` scripts,
+  at the end of every `tasks.md` phase, before its commit. Do not run them after each task; while
+  working on a task you may run one spec with `bun test <spec file>` inside its workspace. Use only
+  these root scripts as the gates; never ad-hoc `tsc` flags. Never make a gate pass by editing a tsconfig, the lint config, `package.json` scripts,
   or with `eslint-disable`, `@ts-ignore` or `@ts-expect-error`.
 - **Spec Kit scripts.** On Windows run the `.ps1` scripts in `.specify/scripts/powershell/`; on macOS
   and Linux the `.sh` scripts in `.specify/scripts/bash/`. Run them from this folder.
@@ -31,7 +32,7 @@ API over SQLite, in one Bun workspace. The binding rules are the
   loading and an `ErrorBanner` with retry on failure.
 - **Design.** Build pages from the components in `apps/web/src/lib/design-system/`. Colours and
   lengths come only from `tokens.css`. Keep the keyboard focus outline and 4.5:1 contrast, and check
-  every changed page at 1280px and 375px wide.
+  every changed page at 1280px and 375px wide once per user story, at its checkpoint.
 - **Environment.** Read environment variables only in `ApiEnvironment.ts` and `WebEnvironment.ts`.
   No work at module load.
 - **Tests.** A spec sits beside its module as `<Module>.spec.ts(x)`, named as a claim. API
@@ -44,7 +45,7 @@ API over SQLite, in one Bun workspace. The binding rules are the
   `research.md`.
 - **Commits.** One plain subject line; no AI attribution anywhere.
 - **Docs.** When a change alters an endpoint, a table, a component, a token or a rule, update the
-  matching page in `docs/` or this file in the same change.
+  matching page in `docs/` or this file in the same change, as one task in the feature's last phase.
 
 ## Folder map
 

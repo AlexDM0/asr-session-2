@@ -90,8 +90,9 @@ Rationale: predictable failures make the API and its end-to-end tests trustworth
 - Accessibility MUST hold: every control is reachable and usable by keyboard with the visible green
   focus outline; text contrast is at least 4.5:1; icons are decorative and every control has a text
   name; the page language is `nl`.
-- A UI task MUST NOT be checked off until its page has been checked in a browser at 1280px and 375px
-  wide, including keyboard focus and contrast, and the result is noted in `tasks.md`.
+- A user story with UI MUST NOT pass its checkpoint until its pages have been checked in a browser
+  at 1280px and 375px wide, including keyboard focus and contrast. The check is done once per story,
+  not per UI task.
 
 Rationale: one token set and one component catalogue keep every page consistent and accessible.
 
@@ -103,8 +104,9 @@ Rationale: one token set and one component catalogue keep every page consistent 
 - API end-to-end suites MUST run the real server against a scratch store through
   `startScratchApiServer()`; tests MUST NOT touch `.data/`.
 - Interactive components MUST be tested with Testing Library.
-- `bun run typecheck`, `bun run lint` and `bun run test` MUST all pass with zero errors before a
-  task is checked off in `tasks.md` and before every commit.
+- `bun run typecheck`, `bun run lint` and `bun run test` MUST all pass with zero errors at the end
+  of every `tasks.md` phase, before its commit. Tasks inside a phase are checked off without running
+  the gates in between.
 
 Rationale: agent-written code is only trustworthy when a mechanical check says so.
 
@@ -136,13 +138,14 @@ Rationale: agent-written code is only trustworthy when a mechanical check says s
 ## Development Workflow and Quality Gates
 
 - **Gates**: the root scripts `bun run typecheck`, `bun run lint` and `bun run test` are the only
-  way to verify code; ad-hoc compiler flags do not count.
+  way to verify code; ad-hoc compiler flags do not count. While working on a task, `bun test
+  <spec file>` inside its workspace may run one spec as a quick check; it never replaces the gates.
 - **Commits**: one commit per completed `tasks.md` phase, with one plain subject line and a body only
   when history or a measurement matters. No AI attribution in commits, code or documentation.
 - **Documentation**: `.github/copilot-instructions.md` holds the rules and the folder map and is
   updated in the same change that alters a rule. `docs/` describes the architecture, the REST API,
   the design system and the conventions, and a feature that changes one of them updates it in the
-  same change. One reference per fact.
+  same change, as one task in the feature's last phase. One reference per fact.
 - **Review**: every change is reviewed against the conventions' review checklist.
 
 ## Governance
@@ -160,4 +163,4 @@ Rationale: agent-written code is only trustworthy when a mechanical check says s
   design; a violation is fixed or justified in Complexity Tracking. `/speckit-analyze` checks spec,
   plan and tasks against this constitution, and a conflict with it is always CRITICAL.
 
-**Version**: 1.0.0 | **Ratified**: 2026-10-11 | **Last Amended**: 2026-10-11
+**Version**: 2.0.0 | **Ratified**: 2026-10-11 | **Last Amended**: 2026-10-21
