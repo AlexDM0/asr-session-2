@@ -12,8 +12,9 @@
   4. git init and a first commit in 1-mijn-duinzicht\ and 2-duinzicht-products-mcp\
   5. Bun: checks that it works, installs a pinned Bun release from GitHub when it is missing
   6. bun install in 1-mijn-duinzicht\ and 2-duinzicht-products-mcp\
-  7. A "Start MCP server" shortcut on the desktop that runs start-mcp.cmd: it starts the MCP server
-     of 2-duinzicht-products-mcp\ and adds .mcp.json to 1-mijn-duinzicht\
+  7. Two shortcuts on the desktop. "Start MCP server" runs start-mcp.cmd: it starts the MCP server
+     of 2-duinzicht-products-mcp\ and adds .mcp.json to 1-mijn-duinzicht\. "Start Mijn Duinzicht"
+     runs start-dev.cmd: it stops the other Bun processes and runs bun run dev in 1-mijn-duinzicht\
 
   One repository per project keeps the agent inside the project: Copilot CLI and worktree sessions
   work from the git root. Safe to run again: every step checks before it changes anything. Works in
@@ -58,7 +59,11 @@ $script:BunArchiveChecksums = @{
 # AppLocker and WDAC run scripts from a user folder in ConstrainedLanguage, where .NET calls fail.
 $script:IsFullLanguage = ($ExecutionContext.SessionState.LanguageMode -eq 'FullLanguage')
 $script:SystemProxy = $null
-$script:McpShortcutName = 'Start MCP server'
+# The desktop shortcuts: name, the file next to this script it starts, and what it does.
+$script:Shortcuts = @(
+    @{ Name = 'Start MCP server'; Target = 'start-mcp.cmd'; Description = 'Starts the Duinzicht products MCP server and connects 1-mijn-duinzicht to it' },
+    @{ Name = 'Start Mijn Duinzicht'; Target = 'start-dev.cmd'; Description = 'Stops the other Bun processes and starts the Mijn Duinzicht portal with bun run dev' }
+)
 # The PATH this window started with, before this script added anything to it.
 $script:StartingPath = $env:PATH
 $script:SetupExitCode = 0
@@ -158,31 +163,33 @@ function Stop-NodeProcesses {
     }
 }
 
-# A double-click on the shortcut starts the MCP server through start-mcp.cmd next to this script.
-# Only creates the shortcut when it is missing. WScript.Shell is COM, which locked-down PowerShell
-# refuses. Returns whether the shortcut is there.
-function Install-McpServerShortcut($rootFolder) {
+# A double-click on a shortcut runs the .cmd next to this script. Only creates the shortcut when it
+# is missing. WScript.Shell is COM, which locked-down PowerShell refuses. Returns whether the
+# shortcut is there.
+function Install-DesktopShortcut($rootFolder, $shortcutDefinition) {
+    $shortcutName = $shortcutDefinition.Name
+    $targetFile = $shortcutDefinition.Target
     if (-not $script:IsFullLanguage) {
-        Write-Warn "PowerShell runs in a locked-down mode, so setup cannot add the `"$script:McpShortcutName`" shortcut. Double-click start-mcp.cmd in $rootFolder instead."
+        Write-Warn "PowerShell runs in a locked-down mode, so setup cannot add the `"$shortcutName`" shortcut. Double-click $targetFile in $rootFolder instead."
         return $false
     }
     try {
         $desktopFolder = [Environment]::GetFolderPath('Desktop')
-        $shortcutPath = Join-Path $desktopFolder "$script:McpShortcutName.lnk"
+        $shortcutPath = Join-Path $desktopFolder "$shortcutName.lnk"
         if (Test-Path -LiteralPath $shortcutPath) {
-            Write-Ok "The `"$script:McpShortcutName`" shortcut is already on the desktop."
+            Write-Ok "The `"$shortcutName`" shortcut is already on the desktop."
             return $true
         }
         $shell = New-Object -ComObject WScript.Shell
         $shortcut = $shell.CreateShortcut($shortcutPath)
-        $shortcut.TargetPath = Join-Path $rootFolder 'start-mcp.cmd'
+        $shortcut.TargetPath = Join-Path $rootFolder $targetFile
         $shortcut.WorkingDirectory = $rootFolder
-        $shortcut.Description = 'Starts the Duinzicht products MCP server and connects 1-mijn-duinzicht to it'
+        $shortcut.Description = $shortcutDefinition.Description
         $shortcut.Save()
-        Write-Ok "Added the `"$script:McpShortcutName`" shortcut to the desktop."
+        Write-Ok "Added the `"$shortcutName`" shortcut to the desktop."
         return $true
     } catch {
-        Write-Warn "Could not add the `"$script:McpShortcutName`" shortcut: $($_.Exception.Message). Double-click start-mcp.cmd in $rootFolder instead."
+        Write-Warn "Could not add the `"$shortcutName`" shortcut: $($_.Exception.Message). Double-click $targetFile in $rootFolder instead."
         return $false
     }
 }
@@ -688,13 +695,13 @@ function Invoke-Setup($rootFolder) {
     }
     Write-Ok 'Every project is installed.'
 
-    # --- 7. MCP server shortcut ----------------------------------------------
-    # A missing shortcut does not fail setup: start-mcp.cmd does the same.
-    Write-Step '7/7 MCP server shortcut'
-    Install-McpServerShortcut $rootFolder | Out-Null
+    # --- 7. Desktop shortcuts -------------------------------------------------
+    # A missing shortcut does not fail setup: the .cmd it runs does the same.
+    Write-Step '7/7 Desktop shortcuts'
+    foreach ($shortcutDefinition in $script:Shortcuts) { Install-DesktopShortcut $rootFolder $shortcutDefinition | Out-Null }
 
     Write-Host ''
-    Write-Info 'Next: open the 1-mijn-duinzicht folder in VS Code and start the portal there with:  bun run dev'
+    Write-Info 'Next: open the 1-mijn-duinzicht folder in VS Code, and start the portal with the "Start Mijn Duinzicht" shortcut or there with:  bun run dev'
     if (-not (Test-PathListContains $bunBinDirectory $script:StartingPath)) {
         Write-Info 'If VS Code was open during setup, close every VS Code window and start it again, so its terminals find bun.'
     }
