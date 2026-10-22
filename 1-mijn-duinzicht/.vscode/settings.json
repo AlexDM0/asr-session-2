@@ -1,4 +1,6 @@
 {
   "git.openRepositoryInParentFolders": "always",
-  "chat.useCustomizationsInParentRepositories": false
+  "chat.useCustomizationsInParentRepositories": false,
+  "chat.permissions.default": "autoApprove",
+  "chat.defaultConfiguration": { "approvals": "allowAll" }
 }
