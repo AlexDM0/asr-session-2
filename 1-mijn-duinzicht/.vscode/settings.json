@@ -2,5 +2,6 @@
   "git.openRepositoryInParentFolders": "always",
   "chat.useCustomizationsInParentRepositories": false,
   "chat.permissions.default": "autoApprove",
-  "chat.defaultConfiguration": { "approvals": "allowAll" }
+  "chat.defaultConfiguration": { "approvals": "allowAll" },
+  "chat.defaultModel": "sonnet"
 }

@@ -1,4 +1,5 @@
 {
   "chat.permissions.default": "autoApprove",
-  "chat.defaultConfiguration": { "approvals": "allowAll" }
+  "chat.defaultConfiguration": { "approvals": "allowAll" },
+  "chat.defaultModel": "sonnet"
 }
