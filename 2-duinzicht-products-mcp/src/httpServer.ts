@@ -6,6 +6,7 @@ import {
   originValidationResponse,
   type McpServer,
 } from "@modelcontextprotocol/server";
+import { docsPath } from "./docsPages.ts";
 
 export const mcpPath = "/mcp";
 
@@ -16,6 +17,7 @@ const ipv6LoopbackAddress = "::1";
 export interface RunningHttpServer {
   port: number;
   mcpUrl: string;
+  docsUrl: string;
   stop(): Promise<void>;
 }
 
@@ -26,7 +28,12 @@ export class PortInUseError extends Error {
   }
 }
 
-export async function startHttpServer(port: number, createServer: () => McpServer): Promise<RunningHttpServer> {
+// renderDocsPage returns the HTML of a readable docs page, or undefined when the path is not one.
+export async function startHttpServer(
+  port: number,
+  createServer: () => McpServer,
+  renderDocsPage: (pathname: string) => string | undefined = () => undefined,
+): Promise<RunningHttpServer> {
   const mcpHandler = createMcpHandler(createServer, {
     onerror: (error) => console.error(`MCP request failed: ${error.message}`),
   });
@@ -45,10 +52,13 @@ export async function startHttpServer(port: number, createServer: () => McpServe
       console.error(`Refused a request with Origin "${request.headers.get("origin") ?? ""}"; only localhost is allowed.`);
       return forbiddenOriginResponse;
     }
-    if (new URL(request.url).pathname !== mcpPath) {
-      return new Response(`Not found. The MCP endpoint is ${mcpPath}.\n`, { status: 404 });
-    }
-    return mcpHandler.fetch(request);
+    const pathname = new URL(request.url).pathname;
+    if (pathname === mcpPath) return mcpHandler.fetch(request);
+
+    const docsPage = request.method === "GET" ? renderDocsPage(pathname) : undefined;
+    if (docsPage !== undefined) return new Response(docsPage, { headers: { "Content-Type": "text/html; charset=utf-8" } });
+    if (request.method === "GET" && pathname === "/") return Response.redirect(new URL(docsPath, request.url).href, 302);
+    return new Response(`Not found. The MCP endpoint is ${mcpPath}; readable docs are at ${docsPath}.\n`, { status: 404 });
   }
 
   const ipv4Server = serveOrThrowPortInUse(port, ipv4LoopbackAddress, handleRequest);
@@ -68,6 +78,7 @@ export async function startHttpServer(port: number, createServer: () => McpServe
   return {
     port: boundPort,
     mcpUrl: `http://localhost:${boundPort}${mcpPath}`,
+    docsUrl: `http://localhost:${boundPort}${docsPath}`,
     async stop() {
       await mcpHandler.close();
       await Promise.all([ipv4Server.stop(true), ipv6Server?.stop(true)]);

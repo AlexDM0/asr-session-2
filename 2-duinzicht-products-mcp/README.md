@@ -17,6 +17,7 @@ The setup in the repository root installs Bun and the dependencies of this folde
 ```text
 Loaded 7 products from .../2-duinzicht-products-mcp/data
 MCP server "duinzicht-products" is running at http://localhost:3333/mcp
+Readable docs for people: http://localhost:3333/docs
 ```
 
 ### Yourself
@@ -35,7 +36,7 @@ bun run dev
 | `bun run test` | Runs the tests |
 | `bun run typecheck` | Checks the types with TypeScript |
 
-There is no build step: Bun runs the TypeScript directly. Logs go to stderr; every tool call is logged, also one with a wrong product code, so you can watch what your assistant asks.
+There is no build step: Bun runs the TypeScript directly. The startup messages go to stdout, logs go to stderr; every tool call is logged, also one with a wrong product code, so you can watch what your assistant asks.
 
 Stop the server with Ctrl+C.
 
@@ -94,6 +95,12 @@ The server also sends `instructions` to the client: what the domain is, that the
 | `rechtsbijstand` | Rechtsbijstandverzekering | yes |
 | `fiets` | Fietsverzekering | yes |
 
+## Read the rules yourself
+
+Open [http://localhost:3333/docs](http://localhost:3333/docs) in a browser while the server runs. It shows the same data as the tools, as readable pages you can click through: products, premium rules (per product) and worked examples. The Tools page shows what your assistant receives when it connects: the server instructions and every tool with its input and output. Use it as a team to check what your assistant says; your assistant gets the rules through the tools.
+
+The Policies page at [http://localhost:3333/docs/policies](http://localhost:3333/docs/policies) shows what the portal in `../1-mijn-duinzicht` has in its store: the customer, the policies with their claims, and the messages, each policy linked to its product. It reads the store afresh on every reload, and shows the portal seed until the portal has created its store. No tool serves this data.
+
 ## Try it without an assistant
 
 The [MCP Inspector](https://github.com/modelcontextprotocol/inspector) needs Node.js 22.19 or later. With the server running:
@@ -124,6 +131,7 @@ curl -X POST http://localhost:3333/mcp \
 | --- | --- | --- |
 | `PORT` | `3333` | Port the server listens on, on `127.0.0.1` and `::1` |
 | `PRODUCTS_DATA_DIRECTORY` | `data` in this folder | Folder with the three JSON files below |
+| `PORTAL_DATABASE_PATH` | `../1-mijn-duinzicht/.data/portal.sqlite` | The portal store the Policies page reads; set it to the same file as the portal's `DUINZICHT_DATABASE_PATH` if you changed that |
 
 Example: `PORT=4444 bun run dev` (PowerShell: `$env:PORT=4444; bun run dev`). Remember to change the URL in `.mcp.json` too.
 

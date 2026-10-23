@@ -196,8 +196,34 @@ describe("http", () => {
     expect(response.status).toBe(200);
   });
 
-  test("answers 404 outside the MCP endpoint", async () => {
-    const response = await fetch(`http://localhost:${testServer.httpServer.port}/`);
+  test("answers 404 outside the MCP endpoint and the docs", async () => {
+    const response = await fetch(`http://localhost:${testServer.httpServer.port}/unknown`);
     expect(response.status).toBe(404);
+  });
+
+  test("redirects the root to the docs", async () => {
+    const response = await fetch(`http://localhost:${testServer.httpServer.port}/`, { redirect: "manual" });
+    expect(response.status).toBe(302);
+    expect(response.headers.get("location")).toBe(testServer.httpServer.docsUrl);
+  });
+
+  test("serves the readable docs pages, linked from the docs index", async () => {
+    const index = await fetch(testServer.httpServer.docsUrl);
+    expect(index.status).toBe(200);
+    expect(index.headers.get("content-type")).toContain("text/html");
+    const indexHtml = await index.text();
+    for (const page of ["products", "premium-rules", "worked-examples", "tools", "policies"]) {
+      expect(indexHtml).toContain(`href="/docs/${page}"`);
+      const response = await fetch(`${testServer.httpServer.docsUrl}/${page}`);
+      expect(response.status).toBe(200);
+    }
+    const rulesHtml = await (await fetch(`${testServer.httpServer.docsUrl}/premium-rules`)).text();
+    for (const code of testServer.repository.listQuotableProductCodes()) expect(rulesHtml).toContain(`id="${code}"`);
+  });
+
+  test("documents every tool the server announces on the tools page", async () => {
+    const toolsHtml = await (await fetch(`${testServer.httpServer.docsUrl}/tools`)).text();
+    const { tools } = await testServer.client.listTools();
+    for (const tool of tools) expect(toolsHtml).toContain(`id="${tool.name}"`);
   });
 });
