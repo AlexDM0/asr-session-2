@@ -17,15 +17,15 @@ names the principles every feature is checked against; the conventions hold the 
 - Code MUST NOT be written without a task in the feature's `tasks.md` that covers it.
 - Feature directories MUST be named `specs/NNN-short-name`, numbered in delivery order, with an
   English slug.
-- `/speckit-specify` MUST ask the user before it writes `spec.md`: one question at a time, each
-  with a recommended answer, about who uses the feature, what is in and out of scope, which data it
-  shows or changes, the edge cases and errors, and when the feature is done. It keeps asking until
-  those are clear, usually three to eight questions, and asks nothing the constitution, the docs or
-  the code already answer. Guessing an answer instead of asking is not allowed.
-- An open question that this constitution, the docs and the code do not answer MUST be put to the
-  user or marked NEEDS CLARIFICATION in the spec. A marker left in `spec.md` blocks `/speckit-plan`;
-  the plan's own markers are resolved in `research.md`. Every answer MUST be recorded in the spec's
-  Clarifications section.
+- `/speckit-specify` MUST ask the user exactly two questions before it writes `spec.md`, one at a
+  time, each with a recommended answer. It picks the two open points with the biggest effect on
+  scope or behaviour (who uses the feature, what is in and out of scope, which data it shows or
+  changes, the edge cases and errors, when the feature is done) and asks nothing the constitution,
+  the docs or the code already answer. When fewer than two points are open, it asks only those.
+- Every other open point `/speckit-specify` settles itself with the most reasonable default and
+  records it in the spec's Assumptions section, so the user can correct it in review. It MUST NOT
+  leave NEEDS CLARIFICATION markers in `spec.md`. Both answers MUST be recorded in the spec's
+  Clarifications section. A NEEDS CLARIFICATION marker in the plan is resolved in `research.md`.
 - A plan MUST NOT proceed past a failing Constitution Check.
 - `/speckit-analyze` is optional in this workshop. When it runs, a CRITICAL finding MUST block
   implementation until it is resolved.
@@ -120,6 +120,8 @@ linter and the existing suites still catch what a change breaks.
 
 - **Runtime and tooling**: Bun is the runtime, package manager (workspaces), test runner and
   bundler.
+- **Python**: a command that needs Python calls `python`, never `python3`. The setup installs
+  Python 3.13 as the default `python`; on Windows `python3` can resolve to the Microsoft Store stub.
 - **Language**: TypeScript in strict mode everywhere (`tsconfig.base.json`). Browser code, Bun code
   and specs each have their own tsconfig, and `bun run typecheck` checks all of them.
 - **Portal**: a React single-page application with React Router, bundled and served by Bun's dev
@@ -169,4 +171,4 @@ linter and the existing suites still catch what a change breaks.
   design; a violation is fixed or justified in Complexity Tracking. When `/speckit-analyze` runs, it
   checks spec, plan and tasks against this constitution, and a conflict with it is always CRITICAL.
 
-**Version**: 2.0.0 | **Ratified**: 2026-10-11 | **Last Amended**: 2026-10-21
+**Version**: 2.1.0 | **Ratified**: 2026-10-11 | **Last Amended**: 2026-10-26

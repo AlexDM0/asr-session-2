@@ -13,9 +13,11 @@ API over SQLite, in one Bun workspace. The binding rules are the
 - **Spec Kit first.** Application code, tests, the store structure and the seed change only through
   the Spec Kit flow (`/speckit-specify` to `/speckit-implement`). Write no code without a task in the
   feature's `tasks.md` that covers it.
-- **Specify asks first.** `/speckit-specify` asks clarifying questions before it writes `spec.md`:
-  one at a time, each with a recommended answer, about users, scope, data, edge cases and when the
-  feature is done, until those are clear. Ask, do not guess; skip what the docs or code answer.
+- **Specify asks two questions.** `/speckit-specify` asks exactly two questions before it writes
+  `spec.md`: one at a time, each with a recommended answer, on the open points that matter most for
+  scope or behaviour. Skip what the docs or code answer. Settle every other open point with a
+  reasonable default and record it under Assumptions in the spec.
+- **Python.** Call `python`, never `python3`.
 - **Gates.** `bun run typecheck`, `bun run lint` and `bun run test` must all pass with zero errors
   at the end of every `tasks.md` phase, before its commit. Do not run them after each task; while
   working on a task you may run one existing spec with `bun test <spec file>` inside its workspace. Use only
